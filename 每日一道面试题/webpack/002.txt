@@ -1,0 +1,22 @@
+在 Webpack 中，loader 和 plugin 是两个核心概念，用于处理不同任务，并在构建过程中发挥各自的作用。
+
+Loader(转换器)
+loader 是用于处理模块的函数或者工具，它用于对特定类型的文件进行转换和处理。Webpack 本身只能处理 JavaScript 和 JSON 文件，但通过 loader，可以让 Webpack 处理更多类型的文件，如 CSS、图片、字体等。
+
+loader 主要的作用是将不同类型的文件转换为模块，以便 Webpack 可以将它们用作依赖，进而构建依赖图，最终生成所需要的输出文件。每个 loader 都是一个单独的模块，可以通过 NPM 安装和引入到配置中。
+
+一些常见的 loader 包括 babel-loader（将 ES6+ 转换为 ES5）、css-loader（处理 CSS 文件）、file-loader（处理文件），以及其他用于处理各种文件类型的 loader。
+
+Plugin（扩展器）
+plugin 用于扩展 Webpack 的功能，它是一个具有 apply 方法的 JavaScript 对象。在 Webpack 的构建过程中，plugin 会监听特定的事件，执行自定义的功能，以满足各种构建需求。
+
+plugin 可以在 Webpack 的不同构建阶段执行自定义逻辑，例如优化、压缩、拷贝文件、定义全局常量等。每个 plugin 都是独立的，可以通过 NPM 安装和引入到配置中。
+
+一些常见的 plugin 包括 HtmlWebpackPlugin（自动生成 HTML 文件）、MiniCssExtractPlugin（将 CSS 提取为独立文件）、CleanWebpackPlugin（清理输出目录），以及其他用于优化、分析和定制构建流程的 plugin。
+
+区别总结
+loader 主要用于加载和转换文件，将非 JavaScript 文件转换为可处理的模块。
+plugin 用于扩展 Webpack 功能，执行构建过程中的额外任务，如优化、拷贝文件、生成 HTML 文件等。
+loader 是一个模块转换器，用于处理模块的输入，输出转换后的结果。
+plugin 是一个扩展器，用于执行构建过程中的额外任务，可以在整个构建生命周期中监听并处理事件。
+综合来说，loader 解决模块的转换问题，而 plugin 解决构建过程的优化、扩展等问题，它们共同完成了 Webpack 的构建任务。

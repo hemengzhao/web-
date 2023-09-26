@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="./intervalometer.js"></script>
+  </head>
+
+  <style>
+    .special span {
+      font-size: 70px;
+      color: #ff0266;
+      font-weight: 800;
+      animation: special 1s ease-in-out infinite alternate;
+    }
+    .special span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .special span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    .special span:nth-child(4) {
+      animation-delay: 0.6s;
+    }
+    .special span:nth-child(5) {
+      animation-delay: 0.8s;
+    }
+    .special span:nth-child(6) {
+      animation-delay: 1s;
+    }
+    .special span:nth-child(7) {
+      animation-delay: 1.2s;
+    }
+    .special span:nth-child(8) {
+      animation-delay: 1.4s;
+    }
+    @keyframes special {
+      to {
+        color: aqua;
+        text-shadow: 10px 0 70px aqua;
+      }
+    }
+
+    .hollowOut {
+      position: relative;
+    }
+    .hollowOut div {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 80px;
+      background-color: #fff;
+      mix-blend-mode: screen;
+    }
+  </style>
+  <body>
+    <div class="special">
+      <span>这</span>
+      <span>是</span>
+      <span>一</span>
+      <span>段</span>
+      <span>特</span>
+      <span>效</span>
+      <span>文</span>
+      <span>字</span>
+    </div>
+
+    <div class="hollowOut">
+      <video
+        width="800px"
+        muted
+        src="https://imgs-qn.51miz.com/preview/element/00/01/22/78/E-1227833-1A7F5527.mp4"
+      ></video>
+      <div>这一段镂空<br />的文字</div>
+    </div>
+  </body>
+</html>

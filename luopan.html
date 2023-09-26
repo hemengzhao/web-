@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .storey {
+        border-radius: 50%;
+        border: 1px solid #333;
+        position: relative;
+      }
+      .storey span {
+        /* display: block; */
+        position: absolute;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .line {
+        background-color: #000;
+        width: 100%;
+        height: 1px;
+        margin: 0;
+        position: absolute;
+        left: 0;
+        top: 50%;
+      }
+      .direction {
+        width: 100px;
+        height: 100px;
+      }
+      .direction .line1 {
+        transform: rotate(45deg);
+      }
+      .direction .line2 {
+        transform: rotate(-45deg);
+      }
+      .direction span:nth-child(1) {
+        transform: rotate(180deg) translateX(50%);
+        top: 5px;
+        left: 50%;
+      }
+      .direction span:nth-child(2) {
+        transform: rotate(90deg) translateX(-50%);
+        left: 5px;
+        top: 50%;
+      }
+      .direction span:nth-child(3) {
+        transform: rotate(-90deg) translateX(50%);
+        right: 5px;
+        top: 50%;
+      }
+      .direction span:nth-child(4) {
+        transform: rotate(0deg) translateX(50%);
+        right: 50%;
+        bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 东西南北 direction -->
+    <!-- 乾兑离震巽坎艮坤 ba_gua-->
+    <!-- 甲、乙、丙、丁、戊、己、庚、辛、壬、癸 tian_gan-->
+    <!-- 子、丑、寅、卯、辰、巳、午、未、申、酉、戌、亥 di_zhi-->
+    <div class="storey direction">
+      <span>北</span>
+      <span>西</span>
+      <span>东</span>
+      <span>南</span>
+      <p class="line line1"></p>
+      <p class="line line2"></p>
+    </div>
+
+    <div class="storey ba_gua">
+      <span>乾</span>
+      <span>兑</span>
+      <span>离</span>
+      <span>震</span>
+      <span>巽</span>
+      <span>坎</span>
+      <span>艮</span>
+      <span>坤</span>
+      <p class="line line1"></p>
+      <p class="line line2"></p>
+    </div>
+    <script></script>
+  </body>
+</html>

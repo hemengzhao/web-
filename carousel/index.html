@@ -1,0 +1,106 @@
+<!-- <!DOCTYPE html> -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <style>
+    .content {
+      width: 400px;
+      height: 200px;
+      border: 1px solid #000;
+      overflow: hidden;
+      position: relative;
+    }
+    .carousl {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      transition: left 0.3s;
+    }
+    .box {
+      width: 400px;
+      height: 200px;
+    }
+    .box1,
+    .box5 {
+      background-color: aqua;
+    }
+    .box2 {
+      background-color: rgb(186, 193, 88);
+    }
+    .box3 {
+      background-color: rgb(0, 255, 76);
+    }
+    .box4 {
+      background-color: rgb(0, 0, 255);
+    }
+  </style>
+  <body>
+    <div class="content" id="content">
+      <div class="carousl" id="carousl">
+        <div class="box box1">1</div>
+        <div class="box box2">2</div>
+        <div class="box box3">3</div>
+        <div class="box box4">4</div>
+        <div class="box box5">5</div>
+      </div>
+    </div>
+  </body>
+  <script type="text/javascript">
+    class Carousel {
+      time = null;
+      index = 0;
+      max = 5;
+      carouslDom;
+      constructor() {
+        this.info();
+        this.createInterval();
+      }
+      info() {
+        this.carouslDom = document.getElementById("carousl");
+        document.getElementById("content").onmouseleave =
+          this.onmouseover.bind(this);
+        document.getElementById("content").onmouseout =
+          this.onmouseout.bind(this);
+      }
+      destruction() {
+        clearInterval(this.time);
+        this.time = null;
+      }
+      createInterval() {
+        if (this.time) clearInterval(this.time);
+        this.time = setInterval(() => {
+          this.index++;
+          if (this.index >= this.max) {
+            this.index = 0;
+          }
+          this.carouslDom.style.left = -(this.index * 400) + "px";
+        }, 1000);
+      }
+      onmouseover() {
+        console.log(
+          "🚀 ~ file: index.html:84 ~ Carousel ~ onmouseover ~ createInterval:"
+        );
+        this.createInterval();
+      }
+      onmouseout() {
+        console.log(
+          "🚀 ~ file: index.html:88 ~ Carousel ~ onmouseout ~ onmouseout:"
+        );
+        this.destruction();
+      }
+    }
+    let time = null;
+    let index = 0;
+    let max = 4;
+
+    let carouslDom;
+
+    window.onload = function () {
+      new Carousel();
+    };
+  </script>
+</html>
