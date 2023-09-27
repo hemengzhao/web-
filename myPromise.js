@@ -1,10 +1,10 @@
 const PENDING = "pending";
-const FULLFILED = "fullfiled";
+const FULFILLED = "fulfilled";
 const REJECTED = "rejected";
 class myPromise {
   status = PENDING; // 状态
   successCallback = []; // 成功回调集合
-  faillCallback = []; // 失败回调集合
+  failCallback = []; // 失败回调集合
   value = ""; // 成功返回值
   reason = ""; // 失败返回值
 
@@ -19,7 +19,7 @@ class myPromise {
 
   resolve(value) {
     if (this.status !== PENDING) return;
-    this.status = FULLFILED;
+    this.status = FULFILLED;
     this.value = value;
     while (this.successCallback.length) {
       this.successCallback.shift()(this.value);
@@ -29,8 +29,8 @@ class myPromise {
     if (this.status !== PENDING) return;
     this.status = REJECTED;
     this.reason = err;
-    while (this.faillCallback.length) {
-      this.faillCallback.shift()(this.reason);
+    while (this.failCallback.length) {
+      this.failCallback.shift()(this.reason);
     }
   }
 
@@ -44,7 +44,7 @@ class myPromise {
       };
     }
     let promise = new myPromise((resolve, reject) => {
-      if (this.status === FULLFILED) {
+      if (this.status === FULFILLED) {
         // 异步
         setTimeout(() => {
           // 报错直接reject
@@ -64,7 +64,7 @@ class myPromise {
           }
         });
       } else {
-        this.faillCallback.push(() => {
+        this.failCallback.push(() => {
           setTimeout(() => {
             try {
               faillCallback(this.reason);
