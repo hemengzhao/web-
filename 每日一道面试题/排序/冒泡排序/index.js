@@ -24,16 +24,11 @@ function bubbleSort(arr) {
     }
 
     // 循环中如果没有发生数据交换，直接终止循环，结束排序
-    if (!isSwapped) continue;
+    if (!isSwapped) break;
   }
 }
 
-console.time("总操作");
-console.time("生成随机数");
-const array = generateUniqueRandomArray(100000, -100, 100000);
-console.timeEnd("生成随机数");
-console.time("冒泡排序");
-bubbleSort(array);
-console.timeEnd("冒泡排序");
-console.timeEnd("总操作");
-console.log("array ====>", array);
+// node环境导出
+module.exports = {
+  bubbleSort,
+};

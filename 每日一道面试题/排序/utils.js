@@ -12,9 +12,10 @@ function generateUniqueRandomArray(length, min, max) {
   const resultArr = [];
   while (resultArr.length < length) {
     const randomNum = Math.floor(Math.random() * (max - min + 1) + min);
-    if (!resultArr.includes(randomNum)) {
-      resultArr.push(randomNum);
-    }
+    // if (!resultArr.includes(randomNum)) {
+    //   resultArr.push(randomNum);
+    // }
+    resultArr.push(randomNum);
   }
 
   return resultArr;
