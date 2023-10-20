@@ -19,7 +19,7 @@ function deepCopy(ctx, isOwnProperty = true, hash = new WeakMap()) {
   if (hash.hash(ctx)) return hash.get(ctx);
 
   //   向创建该实例对象的构造函数,创建一个新的数据
-  const newObj = ctx.constructor();
+  const newObj = new ctx.constructor();
 
   //   存储数据
   hash.set(ctx, newObj);

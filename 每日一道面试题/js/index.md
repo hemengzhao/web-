@@ -20,7 +20,7 @@
 
 ## 11 比较两个数据是否相等
 
-## 12 js 面试题
+## 12 js 面试题 let a = { n: 1 }; let b = a; a.x = a = { n: 2 };
 
 ## 13 js 数据判断的方式以及优缺点
 
@@ -33,3 +33,25 @@
 ## 17 闭包
 
 ## 18 判断是否字符中有中文
+
+## 19 js 中你了解的数据结构
+
+## 20 DOM 和 BOM 的区别
+
+## 21 作用域链
+
+## 22 值和引用面试题 var foo = { bar: 1 }; var arr1 = [1, 2, foo]; var arr2 = arr1.slice(1); arr2[0]++; arr2[1].bar++; foo.bar++; arr1[2].bar++;
+
+## 23 call apply bind 区别
+
+## 24 JavaScript 中执行上下文和执行栈是什么?
+
+## 25 JavaScript 中事件模型
+
+## 26 JavaScript 缓存函数
+
+## 27 JavaScript foreach 中使用 async/await
+
+## 28 for for...in for...of 区别
+
+## 29 鲁班软件前端笔试面试题
