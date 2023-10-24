@@ -55,3 +55,21 @@
 ## 28 for for...in for...of 区别
 
 ## 29 鲁班软件前端笔试面试题
+
+## 30 深度优先遍历和广度优先遍历
+
+## 31 异步笔试题请写出下面代码的运行结果 async / await
+
+## 32 两个数组合并成一个数组
+
+## 33 实现 flat 高阶函数
+
+## 34 实现代码使判断条件生效 var a = ?; if(a == 1 && a == 2 && a == 3){ console.log(1);}
+
+## 35 面试题 var a = 10(function () {console.log(a); a = 5; console.log(window.a); var a = 20;console.log(a);})();
+
+## 36 实现一个 sleep 函数
+
+## 37 面试题 var obj = { 2: 3, 3: 4, length: 2, splice: Array.prototype.splice, push: Array.prototype.push, }; obj.push(1); obj.push(2); console.log(obj);
+
+## 38 (百度面试) 实现 (5).add(3).minus(2) 功能
