@@ -73,3 +73,13 @@
 ## 37 面试题 var obj = { 2: 3, 3: 4, length: 2, splice: Array.prototype.splice, push: Array.prototype.push, }; obj.push(1); obj.push(2); console.log(obj);
 
 ## 38 (百度面试) 实现 (5).add(3).minus(2) 功能
+
+## 39 某公司 1 到 12 月份的销售额存在一个对象里
+
+## 40 要求设计 LazyMan 类，实现以下功能。
+
+## 41 给定 x\*y，实现旋转表格数字填写。
+
+## 42 判断对象为空
+
+## 43 获取 url 中指定参数
