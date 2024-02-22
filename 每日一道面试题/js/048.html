@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .banana {
+        width: 400px;
+        height: 200px;
+        overflow: auto;
+        display: flex;
+        scroll-snap-type: X mandatory;
+      }
+      .banana div {
+        width: 100%;
+        height: 100%;
+        flex: 0 0 400px;
+        scroll-snap-align: start;
+        scroll-margin: 0;
+      }
+      .banana div:nth-child(1) {
+        background-color: aqua;
+      }
+      .banana div:nth-child(2) {
+        background-color: red;
+      }
+      .banana div:nth-child(3) {
+        background-color: hotpink;
+      }
+      .banana div:nth-child(4) {
+        background-color: yellowgreen;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div class="banana">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="./049.js"></script>
+  </body>
+</html>

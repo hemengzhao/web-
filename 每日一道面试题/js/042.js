@@ -22,6 +22,15 @@ function objectEmpty3(obj) {
   return true;
 }
 
+// 结合 getOwnPropertySymbols 和 getOwnPropertyNames
+// Object.getOwnPropertySymbols() 静态方法返回一个包含给定对象所有自有 Symbol 属性的数组。
+function objectEmpty3(obj) {
+  return (
+    Object.getOwnPropertyNames(obj).length === 0 &&
+    Object.getOwnPropertySymbols(obj).length === 0
+  );
+}
+
 // let obj1 = {};
 // console.log("🚀 ~ file: 042.js:24 ~ objectEmpty1:", objectEmpty1(obj1));
 // console.log("🚀 ~ file: 042.js:24 ~ objectEmpty2:", objectEmpty2(obj1));
