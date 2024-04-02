@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .text {
+        width: 200px;
+        text-align: center;
+        border: 1px solid #ccc;
+        padding: 30px;
+        border-radius: 10px;
+        background-color: aqua;
+      }
+      .content {
+        height: 0;
+        overflow: hidden;
+        transition: height 0.5s;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <button type="button">展开</button>
+    <div class="content">
+      <div class="text">
+        黄鹤楼送孟浩然之广陵 <br />
+        李白·唐<br />
+        故人西辞黄鹤楼，<br />
+        烟花三月下扬州。<br />
+        孤帆远影碧空尽，<br />
+        唯见长江天际流。<br />
+      </div>
+    </div>
+    <script type="text/javascript" defer>
+      const button = document.querySelector("button");
+      const text = document.querySelector(".text");
+      const content = document.querySelector(".content");
+      let isShow = false;
+      onmouseenter;
+      button.onclick = function (e) {
+        const { height } = text.getBoundingClientRect(); // convert
+        if (isShow) {
+          content.style.height = 0 + "px";
+          button.innerText = "展开";
+        } else {
+          content.style.height = height + "px";
+          button.innerText = "收起";
+        }
+        isShow = !isShow;
+        e.preventDefault();
+      };
+    </script>
+  </body>
+</html>

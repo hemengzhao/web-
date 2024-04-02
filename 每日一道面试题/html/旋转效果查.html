@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .content {
+        width: 308px;
+        height: 308px;
+        margin: auto;
+        display: grid;
+        grid-template:
+          "A A B"
+          "D E B"
+          "D C C";
+        grid-row-gap: 4px;
+        grid-column-gap: 4px;
+        --edg: 360deg;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        animation: identifier 3s linear infinite;
+        transform-origin: 50%;
+      }
+      .content > div {
+        border: 1px solid #000;
+        overflow: hidden;
+      }
+      .content > div:nth-child(1) {
+        grid-area: A;
+      }
+      .content > div:nth-child(2) {
+        grid-area: B;
+      }
+      .content > div:nth-child(3) {
+        grid-area: C;
+      }
+      .content > div:nth-child(4) {
+        grid-area: D;
+      }
+      .content > div:nth-child(5) {
+        grid-area: E;
+      }
+      .content img {
+        width: 120%;
+        height: 120%;
+        scale: 2;
+        --edg: -360deg;
+        animation: identifier 3s linear infinite;
+        transform-origin: 50%;
+      }
+
+      @keyframes identifier {
+        from {
+          transform: rotate(0);
+        }
+        to {
+          transform: rotate(var(--edg));
+        }
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <div class="content">
+      <div>
+        <img src="./img/1.jpg" />
+      </div>
+      <div><img src="./img/2.jpg" /></div>
+      <div><img src="./img/3.jpg" /></div>
+      <div><img src="./img/4.jpg" /></div>
+      <div><img src="./img/5.jpg" /></div>
+    </div>
+
+    <!-- <div>
+      <img
+        src="./img/4.jpg"
+        srcset="./img/1.jpg 1x, ./img/2.jpg 2x, ./img/3.jpg 3x"
+      />
+    </div> -->
+    <script type="text/javascript" defer></script>
+  </body>
+</html>

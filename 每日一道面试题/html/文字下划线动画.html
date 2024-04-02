@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      span {
+        background: linear-gradient(to right, red, #000) no-repeat;
+        background-size: 1px 2px;
+        background-position: right bottom;
+        transition: background-size 1s;
+      }
+      span:hover {
+        background-size: 100% 2px;
+        background-position: left bottom;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <div class="content">
+      <h1><span>这是一个标题</span></h1>
+    </div>
+    <script type="text/javascript" defer>
+      $(".col:odd").append('<div class="liItem"></div>');
+
+      function setClass(pIndex, index, flag) {
+        const sub = pIndex % 2 ? 0 : 1;
+        const narrows = [
+          [index + sub, index + 1 + sub],
+          [index, index + 2],
+          [index + sub, index + 1 + sub],
+        ];
+        console.log("🚀 ~ setClass ~ narrows:", narrows);
+        narrows.forEach((item, i) => {
+          const pi = pIndex + i;
+          console.log("🚀 ~ narrows.forEach ~ dom:", pi, pIndex, index);
+          if (pi < 0) return;
+
+          item.forEach((item) => {
+            const dom = $(
+              `.content .col:nth-child(${pi}) .liItem:nth-child(${item})`
+            );
+
+            if (flag) {
+              dom.addClass("narrow");
+            } else {
+              dom.removeClass("narrow");
+            }
+          });
+        });
+      }
+      $(".liItem").hover(
+        function () {
+          $(this).addClass("enlarge");
+          const index = $(this).index();
+          const pIndex = $(this).parent().index();
+          console.log("🚀 ~ index:", index, pIndex);
+          setClass(pIndex, index, true);
+        },
+        function () {
+          $(this).removeClass("enlarge");
+          const index = $(this).index();
+          const pIndex = $(this).parent().index();
+          setClass(pIndex, index, false);
+        }
+      );
+    </script>
+  </body>
+</html>

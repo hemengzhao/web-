@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .content {
+        display: flex;
+        justify-content: start;
+      }
+      .color > div {
+        width: 100px;
+      }
+      .lamp {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #a09c9c;
+        margin: 0 auto 10px;
+      }
+      .remainder {
+        text-align: center;
+      }
+      .red.active .lamp {
+        background-color: red;
+      }
+      .yellow.active .lamp {
+        background-color: yellow;
+      }
+      .green.active .lamp {
+        background-color: green;
+      }
+    </style>
+    <script src="./jquery-3.1.1.min.js"></script>
+  </head>
+  <body>
+    <div class="content">
+      <div class="red">
+        <div class="lamp"></div>
+        <div class="remainder"></div>
+      </div>
+      <div class="yellow">
+        <div class="lamp"></div>
+        <div class="remainder"></div>
+      </div>
+      <div class="green">
+        <div class="lamp"></div>
+        <div class="remainder"></div>
+      </div>
+    </div>
+    <script type="text/javascript">
+      class SignalLamp {
+        _time = Date.now();
+        constructor(option) {
+          const {
+            red = 10,
+            yellow = 5,
+            green = 14,
+            init = "green",
+          } = option ?? {};
+
+          this.data = {
+            red: {
+              seconds: red,
+              next: "yellow",
+            },
+            yellow: {
+              seconds: yellow,
+            },
+            green: {
+              seconds: green,
+              next: "yellow",
+            },
+          };
+          this._switch(init);
+        }
+        _switch(color) {
+          this._next();
+          this.currentcolor = color;
+          this.remainderTime = this.data[color].seconds;
+          this._time = Date.now();
+        }
+        _next() {
+          if (this.currentcolor === "red") {
+            this.data.yellow.next = "green";
+          } else if (this.currentcolor === "green") {
+            this.data.yellow.next = "red";
+          }
+        }
+
+        upData() {
+          this.remainderTime =
+            this.data[this.currentcolor].seconds * 1000 -
+            (Date.now() - this._time);
+          if (this.remainderTime <= 1000) {
+            this._switch(this.data[this.currentcolor].next);
+          }
+        }
+        getCurrentLamp() {
+          this.upData();
+          return {
+            color: this.currentcolor,
+            remainderTime: Math.floor(this.remainderTime / 1000),
+          };
+        }
+      }
+
+      const signalLamp = new SignalLamp();
+      function animationFrame() {
+        const { color, remainderTime } = signalLamp.getCurrentLamp();
+        $(".active").removeClass("active").children(".remainder").text("");
+        $(`.${color}`)
+          .addClass("active")
+          .children(".remainder")
+          .text(remainderTime);
+        requestAnimationFrame(animationFrame);
+      }
+      animationFrame();
+    </script>
+  </body>
+</html>

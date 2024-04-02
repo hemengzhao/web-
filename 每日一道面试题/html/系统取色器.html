@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .color {
+        width: 100px;
+        height: 100px;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <div class="content">
+      <button id="tiQu">提取颜色</button>
+      <div class="colorText"></div>
+      <div class="color"></div>
+    </div>
+    <script type="text/javascript">
+      $("#tiQu").on("click", async function () {
+        const dropper = new EyeDropper();
+        try {
+          const result = await dropper.open();
+          console.log("🚀 ~ $ ~ result:", result);
+          $(".colorText").text(result.sRGBHex);
+          $(".color").css({ backgroundColor: result.sRGBHex });
+        } catch (e) {}
+      });
+    </script>
+  </body>
+</html>
