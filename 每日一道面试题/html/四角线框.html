@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .content{
+        position: relative;
+      }
+        .wireframe{
+          position: absolute;
+         transition: all 0.3s;
+        }
+        .wireframe div{
+          width: 10px;
+          height: 10px;
+          background-color: transparent;
+          position: absolute;
+        }
+        .lt{
+          left: 0;
+          top: 0;
+          border-left: 1px solid #fff;
+          border-top: 1px solid #fff;
+        }
+        .rt{
+          right: 0;
+          top: 0;
+          border-right: 1px solid #fff;
+          border-top: 1px solid #fff;
+        }
+        .lb{
+          left: 0;
+          bottom: 0;
+          border-left: 1px solid #fff;
+          border-bottom: 1px solid #fff;
+        }
+        .rb{
+          right: 0;
+          bottom: 0;
+          border-right: 1px solid #fff;
+          border-bottom: 1px solid #fff;
+        }
+
+        .imgbox{
+          padding: 10px;
+          width: 320px;
+          height: 320px;
+          display: grid;
+          grid-template-rows: repeat(3, 1fr);
+          grid-template-columns: repeat(3, 1fr);
+          gap: 10px; 
+          background-color: chocolate;
+        }
+        .list{
+          width: 100px;
+          height: 100px;
+        }
+        .imgbox img {
+          width: 100px;
+          height: 100px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <div class="content">
+
+      <div class="wireframe">
+        <div class="lt"></div>
+        <div  class="rt"></div>
+        <div class="lb"></div>
+        <div  class="rb"></div>
+      </div>
+      <div class="imgbox">
+        <div class="list"><img src="./img/1.jpg" /></div>
+        <div class="list"><img src="./img/2.jpg" /></div>
+        <div class="list"><img src="./img/3.jpg" /></div>
+        <div class="list"><img src="./img/4.jpg" /></div>
+        <div class="list"><img src="./img/5.jpg" /></div>
+        <div class="list"><img src="./img/2.jpg" /></div>
+        <div class="list"><img src="./img/3.jpg" /></div>
+        <div class="list"><img src="./img/4.jpg" /></div>
+        <div class="list"><img src="./img/5.jpg" /></div>
+      </div>
+      
+    </div>
+
+    <script type="text/javascript" defer>
+      $('.list').on('click', function(e){
+        
+        console.log('e=> ',e.currentTarget.getBoundingClientRect(), e.currentTarget.parentNode.getBoundingClientRect())
+       
+       const tNode = e.currentTarget.getBoundingClientRect()
+       const pNode = e.currentTarget.parentNode.getBoundingClientRect()
+
+        const x = tNode.x - pNode.x
+        const y = tNode.y - pNode.y
+        let obj = {
+          width: tNode.width,
+          height: tNode.height,
+          transform: `translateX(${x}px) translateY(${y}px)`
+        }
+        console.log('obj=> ',obj)
+        $('.wireframe').css( {
+          width: tNode.width + 10,
+          height: tNode.height+ 10,
+          transform: `translateX(${x - 5}px) translateY(${y  - 5}px)`
+        })
+        
+      })
+        
+    </script>
+  </body>
+</html>
