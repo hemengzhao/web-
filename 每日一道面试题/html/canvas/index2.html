@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        overflow: hidden;
+      }
+
+      #canvas {
+        background-color: black;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <canvas id="canvas"></canvas>
+  </body>
+  <script>
+    const text = "1234567890abcdefghijklmnnopqrstuvwxyz";
+ 
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth * devicePixelRatio;
+    canvas.height = window.innerHeight * devicePixelRatio; 
+ 
+    function getRandomIntInclusive(min, max) {
+      const minCeiled = Math.ceil(min);
+      const maxFloored = Math.floor(max);
+      return Math.floor(
+        Math.random() * (maxFloored - minCeiled + 1) + minCeiled
+      ); // 包含最小值和最大值
+    }
+
+    class Point {
+      constructor() {
+        this.r = 2  * devicePixelRatio;
+        this.x = getRandomIntInclusive(0, canvas.width);
+        this.y = getRandomIntInclusive(0, canvas.height);
+        this.stepX = getRandomIntInclusive(-50, 50);
+        this.stepY = getRandomIntInclusive(-50, 50);
+        this.directionX = 1;
+        this.directionY = 1;
+        this.lastTime = null;
+      }
+      darw() {
+        if (this.lastTime) {
+          const duration = (Date.now() - this.lastTime) / 1000;
+          let x = this.x + this.stepX * duration;
+          let y = this.y + this.stepY  * duration;
+          if (x > canvas.width - this.r / 2) {
+            x = canvas.width - this.r / 2;
+            this.stepX = -this.stepX ;
+          }
+          if (x < 0) {
+            x = 0;
+            this.stepX = -this.stepX ;
+          }
+          if (y > canvas.height - this.r / 2) {
+            y = canvas.height - this.r / 2;
+            this.stepY = -this.stepY;
+          }
+          if (y < 0) {
+            y = 0;
+            this.stepY = -this.stepY;
+          }
+          this.x = x;
+          this.y = y;
+        } 
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+        ctx.fillStyle = "rgb(200, 200,200)";
+        ctx.fill();
+
+        this.lastTime = Date.now();
+      }
+    }
+
+    class Graph {
+      constructor() {
+        this.points = new Array(150).fill(0).map((c) => new Point());
+        this.maxDis = 120 * devicePixelRatio;
+      }
+
+      darw() {
+        requestAnimationFrame(() => {
+            this.darw(); 
+        });
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        let length = this.points.length;
+        for (let i = 0; i < length; i++) {
+          let p1 = this.points[i];
+          p1.darw();
+          for (let j = i + 1; j < length; j++) {
+            let p2 = this.points[j];
+            p2.darw();
+            const d = Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+            if (d > this.maxDis) {
+              continue;
+            }
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.lineWidth = 2 * devicePixelRatio  
+            ctx.closePath();
+            ctx.strokeStyle = `rgba(200, 200,200, ${1 - d / this.maxDis})`;
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    const gra = new Graph();
+
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+            // 页面可见时执行的代码
+            console.log('页面可见');
+        } else if (document.visibilityState === 'hidden') {
+            // 页面隐藏时执行的代码
+            console.log('页面隐藏');
+           
+                let length = gra.points.length;
+                for (let i = 0; i < length; i++) {
+                    gra.points[i].lastTime = null
+                }
+        }
+ 
+    });
+    
+    gra.darw();
+  </script>
+</html>
