@@ -75,7 +75,7 @@
           }
           this.x = x;
           this.y = y;
-        } 
+        }  
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
         ctx.fillStyle = "rgb(200, 200,200)";
@@ -92,7 +92,11 @@
       }
 
       darw() {
-        requestAnimationFrame(() => {
+
+//         1824.7999999999918 921.0400000000038 'pointxy'
+// index2.html:117 2605.3860000000086 1399.5639999999946 'pointxy'
+// index2.html:117 2605.3860000000086 1399.5639999999946 'pointxy'
+        requestAnimationFrame(() => { 
             this.darw(); 
         });
         ctx.clearRect(0, 0, canvas.width, canvas.height);

@@ -6,4 +6,8 @@
 
 ## 04 box-decoration-break 属性用来定义当元素跨多行、多列或多页时，元素的片段应如何呈现。
 
-## 04 元素重叠后，鼠标可以点击下方被遮挡元素 pointer-events
+## 05 元素重叠后，鼠标可以点击下方被遮挡元素 pointer-events
+
+## 06   position: sticky;
+
+## 07 块元素实现 宽度跟随内容 width: fit-content;
