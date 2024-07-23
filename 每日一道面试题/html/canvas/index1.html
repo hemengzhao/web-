@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body{
+            overflow: hidden;
+        }
+        #canvas{
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"  ></canvas>
+</body>
+<script> 
+    const text = '1234567890abcdefghijklmnnopqrstuvwxyz'
+    const fontsize = 20  ; 
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth 
+    canvas.height = window.innerHeight 
+    const column = Math.floor(window.innerWidth / fontsize) 
+    const colIndex = new Array(column).fill(0); 
+    function getRandomIntInclusive(min, max) {
+        const minCeiled = Math.ceil(min);
+        const maxFloored = Math.floor(max);
+        return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled); // 包含最小值和最大值
+     }
+     let lastTime = null
+    const darw = () => { 
+        requestAnimationFrame(() => {
+            darw(); 
+        });
+        if((Date.now() - lastTime) < 50 ) return 
+        lastTime =  Date.now()
+        ctx.fillStyle = "rgba(0,0,0,0.1)"
+        ctx.fillRect(0,0, canvas.width, canvas.height)
+        ctx.fillStyle = "orange"
+        ctx.textBaseline= 'top'
+        ctx.font = `${fontsize}px serif`;
+        for (let index = 0; index < column; index++) {
+            const y = colIndex[index]* fontsize
+            const x = index * fontsize
+            const ti = getRandomIntInclusive(0, text.length - 1)
+            ctx.fillText(text[ti], x, y)  
+            if(y >= canvas.height && Math.random() > 0.95){
+                colIndex[index] = 0
+            } else { 
+                colIndex[index]++
+            }  
+        } 
+        
+    }
+    darw()
+
+    
+</script>
+</html>
