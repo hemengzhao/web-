@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .box {
+        margin: 50px;
+        width: 200px;
+        height: 120px;
+        background-color: blue;
+        border-radius: 10px;
+        position: relative;
+        filter: drop-shadow(0 0 5px #000);
+      }
+      .box::before {
+        content: "";
+        position: absolute;
+        background-color: blue;
+        transform: rotate(45deg);
+        width: 20px;
+        height: 20px;
+        top: 50%;
+        left: -10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content">
+      <div class="box"></div>
+    </div>
+    <script type="text/javascript">
+      const button = document.querySelector("button");
+      button.onclick = () => {
+        console.log("button clicked");
+      };
+    </script>
+  </body>
+</html>

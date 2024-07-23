@@ -7,3 +7,7 @@
 ## 04 box-decoration-break 属性用来定义当元素跨多行、多列或多页时，元素的片段应如何呈现。
 
 ## 04 元素重叠后，鼠标可以点击下方被遮挡元素 pointer-events
+
+## 008 描边 filter: drop-shadow
+
+## 009 mix-blend-mode: difference; 颜色混合

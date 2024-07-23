@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .content {
+        width: 630px;
+        height: 600px;
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .content div {
+        width: 200px;
+        height: 200px;
+        background: url("./img/6.webp") 200px 200px;
+        background-position: top left;
+        background-repeat: no-repeat;
+      }
+
+      .content:hover div {
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+
+      .content div:nth-child(3n + 1) {
+        background-position-x: 0;
+      }
+      .content div:nth-child(3n + 2) {
+        background-position-x: -200px;
+      }
+      .content div:nth-child(3n + 3) {
+        background-position-x: -400px;
+      }
+
+      .content div:nth-child(-n + 3) {
+        background-position-y: 0;
+      }
+
+      .content div:nth-child(n + 4):nth-child(-n + 6) {
+        background-position-y: -200px;
+      }
+      .content div:nth-child(n + 7):nth-child(-n + 9) {
+        background-position-y: -400px;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <div class="content">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+
+    <script type="text/javascript" defer></script>
+  </body>
+</html>

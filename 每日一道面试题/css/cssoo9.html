@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      .box {
+        height: 120px;
+        width: 1200px;
+        position: relative;
+        background-color: #fff;
+      }
+      .box::before {
+        content: "";
+        position: absolute;
+        width: 50%;
+        height: 100%;
+        right: 0;
+        background-color: black;
+        clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 0% 100%);
+      }
+      .text {
+        mix-blend-mode: difference;
+        font-size: 3em;
+        color: #fff;
+        text-align: center;
+      }
+      .text:hover {
+        transform: translateX(100px);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content">
+      <div class="box">
+        <h1 class="text">无边落木萧萧下，不尽长江滚滚来，</h1>
+      </div>
+    </div>
+    <script type="text/javascript"></script>
+  </body>
+</html>
