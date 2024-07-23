@@ -1,52 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <style>
-        .img-com{
-            width: 200px;
-            height: 200px;
-            position: relative;
-            border-radius: 50%;
-            overflow: hidden;
-        }
-        .img-com::before{
-            content: ' ';
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            z-index: 2;
-            background-color: rgba(0,0,0,0.7);
-        }
-        .img-com img {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-
-        } 
-        .bg{
-            z-index: 1;
-        }
-        .img-com:hover .tp{
-            clip-path: circle(100%)
-        }
-        .img-com .tp{
-            z-index: 10; 
-            clip-path: circle(0%);
-            transition: all 1s;
-            
-        }
-
+      .img-com {
+        width: 200px;
+        height: 200px;
+        position: relative;
+        border-radius: 50%;
+        overflow: hidden;
+      }
+      .img-com::before {
+        content: " ";
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        z-index: 2;
+        background-color: rgba(0, 0, 0, 0.7);
+      }
+      .img-com img {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+      .bg {
+        z-index: 1;
+      }
+      .img-com:hover .tp {
+        clip-path: circle(100%);
+      }
+      .img-com .tp {
+        z-index: 10;
+        clip-path: circle(0%);
+        transition: all 1s;
+      }
     </style>
-</head>
-<body>
-    <div >
-        <div class="img-com">
-            <img class="bg" src="./img/6.webp"/>
-            <img class="tp" src="./img/6.webp"/> 
-        </div>
+  </head>
+  <body>
+    <div>
+      <div class="img-com">
+        <img class="bg" src="./img/7.webp" />
+        <img class="tp" src="./img/7.webp" />
+      </div>
     </div>
-</body>
+  </body>
 </html>
