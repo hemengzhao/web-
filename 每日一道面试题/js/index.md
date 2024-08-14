@@ -119,3 +119,5 @@
 ## slice split slice splice
 
 ## 61 前置不定量参数
+
+## 62 本地存储 cookie、localStorage 和 sessionStorage

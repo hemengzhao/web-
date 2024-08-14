@@ -44,3 +44,16 @@ const currySum = curry(sum)
 
 currySum('1')(12)(1)('12')
 export default void 0
+
+
+
+//  ts 类型推断定义
+const colors =['♠', '♥', '♣', '♦'] as const
+const values = ['2', '3', '4', '5','6','7', '8', '9', '10', 'J','Q', 'K', 'A'] as const
+
+type Colors = typeof colors[number]
+type Values = typeof values[number]
+function createCard(values: Values, colors: Colors) {
+    
+}
+createCard('10', '♣')
