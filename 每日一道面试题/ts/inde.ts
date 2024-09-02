@@ -56,4 +56,4 @@ type Values = typeof values[number]
 function createCard(values: Values, colors: Colors) {
     
 }
-createCard('10', '♣')
+createCard('10', '♦')
