@@ -1,10 +1,5 @@
 
 // 防抖函数类型推断
-
-declare function debounce<A extends any[], R>(
-    fn: (...args: A) => R, 
-    time?: number
-): (...args: A) => void;
 // function debounceA<A extends any[], R>(callback: (...args: A) => R, time: number = 300): (...args: A) => void {
 //     let timeId: number | null = null;
 //     return function (...args: A) {
@@ -15,6 +10,12 @@ declare function debounce<A extends any[], R>(
 //         }, time);
 //     };
 // }
+
+declare function debounce<A extends any[], R>(
+    fn: (...args: A) => R, 
+    time?: number
+): (...args: A) => void;
+ 
 function handler(a: number, b: number): number{
     return a + b
 }
@@ -33,9 +34,13 @@ type currIed<A, R> = A extends [] ?
 A extends [infer ARG, ...infer OTHER] ? 
 (parm: ARG) => currIed<OTHER, R> : 
  never
+
+
 declare function curry<A extends any[], R>(
     fn:(...ages: A) => R
 ): currIed<A, R>;
+
+
 function sum(a: string, b: number, c: 1, d: string) {
     return '122'
 }
@@ -53,7 +58,27 @@ const values = ['2', '3', '4', '5','6','7', '8', '9', '10', 'J','Q', 'K', 'A'] a
 
 type Colors = typeof colors[number]
 type Values = typeof values[number]
+
+
 function createCard(values: Values, colors: Colors) {
     
 }
 createCard('10', '♦')
+
+
+
+
+//  TS  字段到函数推导
+type Watcher<T> = {
+    on<K extends string & keyof T>(name: `${K}Change`, callback: (oldValue: T[K], newValue: T[K]) => void): void
+}
+declare function watch<T>(obj: T): Watcher<T>;
+ 
+const personWatch = watch({
+    name: '张三',
+    age: 12,
+    sex: '男'
+}) 
+personWatch.on('ageChange', (oldValue, newValue) => {
+
+})
