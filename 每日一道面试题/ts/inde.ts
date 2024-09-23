@@ -24,8 +24,9 @@ const dHandler = debounce(handler, 100);
 dHandler(2, 3)
 
 
-// 函数柯里化标注
+/**   ===================================================================================== **/ 
 
+// 函数柯里化标注
 // 1. () => R 没有参数的情况
 // 2. (x) => R  只有一个参数的情况
 // 3. (x) => 新的函数   由多个参数结果再次返回一个新的函数
@@ -51,6 +52,7 @@ currySum('1')(12)(1)('12')
 export default void 0
 
 
+/**   ===================================================================================== **/ 
 
 //  ts 类型推断定义
 const colors =['♠', '♥', '♣', '♦'] as const
@@ -67,6 +69,7 @@ createCard('10', '♦')
 
 
 
+/**   ===================================================================================== **/ 
 
 //  TS  字段到函数推导
 type Watcher<T> = {
@@ -82,3 +85,42 @@ const personWatch = watch({
 personWatch.on('ageChange', (oldValue, newValue) => {
 
 })
+
+/**   ===================================================================================== **/ 
+
+// 不可变类型
+// Readonly 本身不支持深层的不可变 
+interface Obj {
+    a: number
+    b: boolean
+    c: {
+        d: number
+    }
+}
+
+const  obj: Readonly<Obj>  =  {
+    a: 2,
+    b:true,
+    c: {
+        d: 4
+    }
+} 
+obj.c.d = 3
+
+// 自行实现深层不可变
+type DeepReadonly<T extends Record<string | symbol, any>> = {
+    readonly [K in keyof T]: DeepReadonly<T[K]>
+}
+const  obj2: DeepReadonly<Obj>  =  {
+    a: 2,
+    b: false,
+    c: {
+        d: 4
+    }
+} 
+
+obj2.a = 2
+obj2.c.d = 3
+
+/**   ===================================================================================== **/ 
+type TAny = keyof any
