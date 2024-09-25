@@ -12,37 +12,54 @@
 class EventEmitter {
     #events
     constructor() {
-        this.events = {};
+        this.#events = {};
     }
     on(name, callback) {
-        if (this.events[name]) {
-            this.events[name].push(callback)
+        if (this.#events[name]) {
+            this.#events[name].push(callback)
         } else {
-            this.events[name] = [callback]
+            this.#events[name] = [callback]
         }
     }
-    once(name, callback) {
-        function fn(this) {
-            callback();
-            this.off(name, fn);
+    once(name, callback) { 
+        const self = this; // 保存对 EventEmitter 实例的引用
+        function fn(...args) {
+            callback(...args);
+            self.off(name, fn);
         }
-        this.on(name, fn.bind(this));
+        this.on(name, fn);
 
     }
     emit(name, ...args) {
-        if (this.events[name]?.length) {
-            for (let i = 0; i < this.events[name].length; i++) {
-                this.events[name][i](...args);
+         if (this.#events[name]?.length) {
+            for (let i = 0; i < this.#events[name].length; i++) {
+                this.#events[name][i](...args);
             }
         }
     }
     off(name, callback) {
-        if (!this.events[name]?.length) return;
+       
+        if (!this.#events[name]?.length) return;
         if (callback) {
-            this.events[name] = this.events[name].filter((item) => item !== callback);
+            this.#events[name] = this.#events[name].filter((item) => item !== callback);
+
         } else {
-            this.events[name] = [];
+            this.#events[name] = [];
         }
     }
 
 }
+
+
+const eventEmitter = new EventEmitter() 
+
+eventEmitter.on('name', (e) => {
+    console.log("🚀 ~ eventEmitter.on ~ e:", e)
+
+})
+eventEmitter.on('age', (e) => {
+    console.log("🚀 ~ eventEmitter.on ~ e:", e)
+})
+
+eventEmitter.emit('age', 123)
+console.log("🚀 ~ eventEmitter:", eventEmitter)
