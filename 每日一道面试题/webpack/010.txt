@@ -1,1 +1,21 @@
-文件原理原理
+文件监听原理
+
+源码发生变化，自动重新构建出新的文件
+
+监听模式
+
+--watch
+配置中webpack.config.js   watch: true
+
+缺点  每次需要手动刷新
+原理  轮询判断文件的最后编辑时间是否发生变化，文件变化缓存起来，等待aggregateTimeout
+
+
+module.exports = {
+    watch： true,
+    watchOptions: {
+        ignored: /node_modules/,  // 忽略监听文件
+        aggregateTimeout: 300, 
+        poll: 1000, //轮询测试，默认每秒1000
+    }
+}

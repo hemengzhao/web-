@@ -1,0 +1,36 @@
+webpack5 模块联邦理解
+
+多个项目之间共享代码的机制
+
+
+ModuleFederatinPlugin
+
+
+代码示例
+
+// 模块提供方
+const ModuleFederatinPlugin = require('webpack/lib/container/ModuleFederatinPlugin')
+
+module.exports = {
+    plugins: [new ModuleFederatinPlugin({
+        name: 'app1',
+        filename: 'remoteEntry.js',
+        exposes: {
+            // 需要共享的模块和对应的路径
+            './Button': './src/components/Button',
+        },
+        shard: ['react', 'react-dom'] // 共享的第三方库
+    })]
+}
+
+// 模块使用方
+module.exports = {
+    plugins: [new ModuleFederatinPlugin({
+        name: 'app2',
+        filename: 'remoteEntry.js',
+         remotes: {
+            app1: 'app1@https://localhost:3001/remoteEntry.js' // 模块提供方路径
+         }
+        shard: ['react', 'react-dom'] // 共享的第三方库
+    })]
+}

@@ -1,0 +1,12 @@
+webpack 热更新原理
+
+热更新   Hot Module Reqlacement HMR  无需刷新浏览器，即可更新替换旧模块
+
+
+chunk diff
+
+维护websocket  （wds（本地问价）到浏览器链接）
+
+
+本地资源发生改变  wds 推送更新Hash
+客户端与上一次资源进行对比， 发生差异 客户端发起ajax更新内容
