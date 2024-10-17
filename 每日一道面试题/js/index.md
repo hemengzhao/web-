@@ -137,3 +137,7 @@
 ## 69 面试题， commonjs 原理
 
 ## 70 手写实现一下 lodash.get
+
+## 71 js事件循环面试题
+
+## 72 thenable  Promise的thenable面试题
