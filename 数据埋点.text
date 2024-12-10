@@ -1,0 +1,105 @@
+
+上报方式 
+
+前端中，常见的埋点上报方式有以下几种：
+
+1. 图片请求（Image Beacon）：通过创建一个Image对象，将要上报的数据作为URL参数拼接到一个1x1像素的透明图片URL中，发送一个GET请求来触发上报。
+
+2. XMLHttpRequest或Fetch API：使用XMLHttpRequest或Fetch API发送异步请求来上报数据。可以选择使用GET或POST方法，并将数据作为请求体或URL参数发送。
+
+3. Navigator.sendBeacon()：Navigator.sendBeacon()方法允许在页面卸载时异步发送数据。它通常用于在页面关闭时进行最后的数据上报，以确保数据能够成功发送。
+
+4. WebSocket：使用WebSocket协议与服务器建立持久连接，并通过发送消息来进行实时的埋点数据上报。
+
+5. 第三方统计工具：使用第三方统计工具（如Google Analytics、百度统计等）提供的JavaScript SDK来进行埋点和数据上报。
+
+6. 自定义接口：根据业务需求，自行设计和开发接口用于接收和处理埋点数据，并通过Ajax等方式将数据发送到自定义接口进行上报。 每种方式都有其适用场景和特点。选择合适的埋点上报方式取决于具体需求、性能要求、实时性要求以及对用户体验的影响等因素。
+
+
+1. 图片请求
+
+优点： 
+    简单易用，兼容性好，可以跨域上报。
+    不会阻塞页面加载和关闭。
+
+缺点： 
+    只能发送GET请求，无法获取响应结果。
+    不支持异步操作。
+
+const data = { event: 'click', element: 'button' };
+const url = ` https://example.com/track?data= ${encodeURIComponent(JSON.stringify(data))}`;
+const img = new Image();
+img.src = url;
+
+2. XMLHttpRequest或Fetch API
+
+优点： 
+    可以发送异步请求，支持GET和POST等多种HTTP方法。
+    可以获取响应结果，并进行进一步处理。
+
+缺点： 
+    需要手动处理请求和响应的逻辑。
+    需要处理跨域请求的问题（如设置CORS）
+
+    const data = { event: 'click', element: 'button' };
+    
+    // 使用XMLHttpRequest
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', ' https://example.com/track ');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(data));
+    
+    // 使用Fetch API
+    fetch(' https://example.com/track ', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+    });
+
+
+3. Navigator.sendBeacon()
+优点： 
+    在页面卸载时可靠地发送数据，不会阻塞页面关闭。
+    支持在后台发送数据。
+
+缺点：  
+    只能发送POST请求，无法获取响应结果。
+    Navigator.sendBeacon()方法允许在页面卸载时异步发送数据。它通常用于在页面关闭时进行最后的数据上报，以确保数据能够成功发送。
+
+const data = { event: 'unload', page: 'home' };
+const url = ' https://example.com/track ';
+navigator.sendBeacon(url, JSON.stringify(data));
+
+
+4. WebSocket
+
+优点：
+    实时性好，支持双向通信。
+    适用于实时监控和大规模数据上报。
+
+缺点： 
+    需要服务器端支持WebSocket协议。
+    较复杂且不适用于简单的埋点需求。
+
+
+5. 第三方统计工具
+优点： 
+    提供了完整的统计功能和分析报告。
+    具有较高的稳定性和可靠性。
+
+缺点： 
+    需要依赖第三方服务，可能受限于服务商的限制。
+    需要遵循第三方统计工具的使用规范和隐私政策。
+
+
+6. 自定义接口
+
+优点： 
+    可以根据具体需求和业务逻辑进行灵活的定制和扩展。
+    可以完全控制数据的处理和存储方式。
+
+缺点： 
+    需要额外开发和维护自定义接口。
+    需要考虑安全性、性能和可扩展性等方面的问题。

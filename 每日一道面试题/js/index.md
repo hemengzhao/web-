@@ -20,7 +20,7 @@
 
 ## 11 比较两个数据是否相等
 
-## 12 js 面试题 let a = { n: 1 }; let b = a; a.x = a = { n: 2 };
+## 12 js 面试题 let a =; let b = a; a.x = a =;
 
 ## 13 js 数据判断的方式以及优缺点
 
@@ -40,7 +40,7 @@
 
 ## 21 作用域链
 
-## 22 值和引用面试题 var foo = { bar: 1 }; var arr1 = [1, 2, foo]; var arr2 = arr1.slice(1); arr2[0]++; arr2[1].bar++; foo.bar++; arr1[2].bar++;
+## 22 值和引用面试题 var foo =; var arr1 = [1, 2, foo]; var arr2 = arr1.slice(1); arr2[0]++; arr2[1].bar++; foo.bar++; arr1[2].bar++;
 
 ## 23 call apply bind 区别
 
@@ -64,13 +64,13 @@
 
 ## 33 实现 flat 高阶函数
 
-## 34 实现代码使判断条件生效 var a = ?; if(a == 1 && a == 2 && a == 3){ console.log(1);}
+## 34 实现代码使判断条件生效 var a = ?; if(a == 1 && a == 2 && a == 3)
 
-## 35 面试题 var a = 10(function () {console.log(a); a = 5; console.log(window.a); var a = 20;console.log(a);})();
+## 35 面试题 var a = 10(function ())();
 
 ## 36 实现一个 sleep 函数
 
-## 37 面试题 var obj = { 2: 3, 3: 4, length: 2, splice: Array.prototype.splice, push: Array.prototype.push, }; obj.push(1); obj.push(2); console.log(obj);
+## 37 面试题 var obj =; obj.push(1); obj.push(2); console.log(obj);
 
 ## 38 (百度面试) 实现 (5).add(3).minus(2) 功能
 
@@ -112,10 +112,34 @@
 
 ## 57 ts 函数重载
 
-## 58 让`var [a, b] = {a: 1, b: 2}` 解构赋值成功？
+## 58 让 `var [a, b] = {a: 1, b: 2}` 解构赋值成功？
 
 ## 59 [] == ! []
 
 ## slice split slice splice
 
 ## 61 前置不定量参数
+
+## 62 本地存储 cookie、localStorage 和 sessionStorage
+
+## 63 闭包提权 （1. 修改闭包内的私有变量 2. 防止闭包私有变量没修改）
+
+## 64 class 转 function
+
+## 65 面试题，函数传递修改判断（值传递）
+
+## 66 面试题， 实现一下「模版字符串」功能
+
+## 67 面试题， 手写实现一下 Promise.all
+
+## 68 面试题， 无限递归一定会造成溢栈(内存泄露)吗？
+
+## 69 面试题， commonjs 原理
+
+## 70 手写实现一下 lodash.get
+
+## 71 js 事件循环面试题
+
+## 72 thenable Promise 的 thenable 面试题
+
+## 72 合并重叠的子数组面试题 & this 面试题

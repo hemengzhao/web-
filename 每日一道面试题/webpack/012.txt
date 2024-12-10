@@ -1,0 +1,18 @@
+webpack 事件机制
+
+常见事件
+ 
+
+before-run   开始执行构建之前出发， 可以清理上一次构建的临时文件或者状态
+run  开始执行构建触发
+before-compile   开始编译代码前触发   可以用于添加一些额外的编译配置或者预处理代码
+compile  开始编译触发   可用监听编译过程或者编译处理错误
+this-compilation  创建新的compilation对象触发   compilation对象代表当前百衲衣过程中的所有状态和信息
+compilation： 编译代码期间触发  可以用于监听编译过程或处理编译错误
+emit  输出文件之前触发， 修改输出文件或者生成一些附加文件
+after-emit  输出文件之后触发  用于清理中间文件
+done  构建完成是触发， 用于生成构建报告
+
+
+webpack事件机制   Tapable 实现 核心类   封装了事件订阅发布机制  
+ compiler  compilation都是Tapable类的实例对象

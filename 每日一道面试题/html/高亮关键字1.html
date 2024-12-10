@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CSS高亮</title>
+  <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    .container {
+        width: 100vw;
+        height: 100vh;
+        padding-top: 20px;
+    }
+    .search {
+        width: 100%;
+        padding: 10px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .search input {
+        width: 500px;
+        height: 35px;
+        border: 1px #999 solid;
+        outline: 0;
+        background-color: #fff;
+        border-radius: 3px;
+        padding-left: 10px;
+    }
+    .content {
+        width: 100%;
+        padding: 30px;
+    }
+    .highlight {
+      background-color: yellow;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="search">
+    <input id="search" type="text" placeholder="输入关键词检索" />
+  </div>
+  <div class="content">
+   
+  </div>
+</div>
+</body>
+<script>
+function highlightKeyword(text, keyword) {
+  if (!keyword) return text;
+  const regex = new RegExp(keyword, 'gi');
+  const matches = text.match(regex);
+  if (!matches) return text;
+  return text.replace(regex, match => `<span class="highlight">${match}</span>`);
+}
+ 
+ 
+ 
+// 使用函数
+const text = "This is a simple example text for highlighting a keyword.";
+const keyword = "simple";
+const highlightedText = highlightKeyword(text, keyword);
+ 
+// 输出到页面
+
+const content = document.getElementsByClassName('content')[0]
+content.innerHTML = highlightedText;
+const domText = content.innerText
+let search = document.getElementById('search')
+search.onchange = event => {
+  let value = event.target.value
+   
+}
+</script>
+</html>

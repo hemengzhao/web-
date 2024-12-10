@@ -1,0 +1,6 @@
+ webpack 的 mode 是什么
+ 指定构建模式选项  development production  none
+
+ development 开发环境  提供优化特性  启动更详细的错误日志  保留原始代码  更容易调试
+ prodution   生产环境  优化输出文件代码压缩    作用域提升 减少文件体积 提高加载性能
+ none        关闭任何默认优化选项   只执行基本的打包功能  不做任何的额外处理

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3dPie</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-size: 14px;
+            padding: 0;
+            width: 600px;
+
+
+
+
+        }
+
+        div[id^="pieBox"] {
+            position: relative;
+
+        }
+
+        #pieBox::after {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+
+        }
+
+        div[id^="pie"] {
+            position: relative;
+        }
+
+        h3 {
+            text-align: center;
+            font-weight: normal;
+            font-size: 20px;
+            letter-spacing: 1px;
+            margin-bottom: -10px;
+            position: relative;
+            z-index: 1;
+            margin-top: 0;
+            padding-top: 10px;
+        }
+
+
+
+
+
+        .legend-list {
+            display: flex;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 2;
+            margin-left: auto;
+            margin-right: auto;
+            margin: 0;
+            margin-bottom: 20px;
+            margin-left: auto;
+            margin-right: auto;
+            transform: translateX(5%);
+            margin-bottom: -20px;
+        }
+
+        .legend-item {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+            margin-bottom: 10px;
+        }
+
+        .legend-icon {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            margin-right: 10px;
+
+        }
+    </style>
+
+
+</head>
+
+<body style="zoom:2">
+    <!-- 容器 -->
+    <div id="pieBox">
+        <h3 id="title"></h3>
+        <div id="pie"></div>
+
+
+    </div>
+
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/three.js/0.156.1/three.min.js"></script>
+
+    <script>
+        /*标题*/
+        const TITLE = '标题'
+        /* 数据 */
+        const DATA = [
+            { value: 45, text: "a" },
+            { value: 18, text: "b" },
+            { value: 17, text: "c" },
+            { value: 7, text: "d" },
+            { value: 6, text: "e" },
+            { value: 3, text: "f" },
+            { value: 2, text: "g" },
+            { value: 2, text: "h" },
+        ]
+
+        /*尺寸*/
+        const WIDTH = 600;
+        const HEIGHT = 500;
+        const ZOOM = 1;
+
+        /*颜色*/
+        const COLORS = ['#4f87b8', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc']
+
+
+        setConfig();
+        function setConfig() {
+            const pieBox = document.querySelector('#pieBox')
+            pieBox.style.height = HEIGHT + 'px'
+            const pie = document.querySelector('#pie')
+            pie.style.height = HEIGHT + 'px'
+            const title = document.querySelector('#title')
+            title.innerHTML = TITLE
+            document.body.style.zoom = ZOOM
+        }
+
+
+
+        class Pie3d {
+            constructor(selector, data, colors, innerRadius = 0) {
+                this.domBox = document.querySelector(selector);
+                this.data = data;
+                this.colors = colors;
+                this.innerRadius = innerRadius;
+
+                this.width = this.domBox.clientWidth;
+
+                this.height = this.domBox.clientHeight;
+                this.maxChartDimension = Math.min(this.width, this.height);
+
+                this.group = new THREE.Group();
+                this.group.position.set(0, 0, 0);
+
+                this.init();
+            }
+            init() {
+                this.initScene();
+                this.initCamera();
+                this.initRenderer();
+                this.initLight();
+                this.initObject();
+                this.initAnimate();
+                this.initText()
+                // this.initControls();
+
+
+
+            }
+            initScene() {
+                this.scene = new THREE.Scene();
+            }
+            initCamera() {
+                const aspect = this.width / this.height;
+                const d = this.maxChartDimension / 2; // 这个值决定了视野的大小
+                this.camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 1000);
+                this.camera.position.set(0, 0, this.maxChartDimension);
+                this.camera.lookAt(this.scene.position);
+            }
+            initRenderer() {
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.renderer.setSize(this.width, this.height);
+                this.renderer.setClearColor(0xffffff, 1.0);
+                this.renderer.setPixelRatio(window.devicePixelRatio );
+                this.domBox.appendChild(this.renderer.domElement);
+            }
+            initLight() {
+                // 点光源
+                var ambientLight = new THREE.AmbientLight(0xffffff, 1)
+                this.scene.add(ambientLight)
+                // 添加一个平行光
+                this.directionalLight = new THREE.DirectionalLight(0xffffff, 3);
+                this.directionalLight.position.set(-1, 1, 1);
+                this.scene.add(this.directionalLight);
+            }
+            initObject() {
+                this.initPie();
+                this.initLegend();
+            }
+
+            initControls() {
+                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+            }
+            initAnimate() {
+                this.animate = () => {
+                    requestAnimationFrame(this.animate);
+                    // this.controls.update();
+                    this.renderer.render(this.scene, this.camera);
+                }
+                this.animate();
+            }
+            initPie() {
+                this.outRadius = this.maxChartDimension / 2.2;
+                this.depth = this.outRadius / 4; // 控制饼图的厚度
+                this.total = this.getTotalValue()
+
+                let startAngle = 0;
+                this.data.forEach((item, index) => {
+
+                    const endAngle = startAngle + (item.value / this.total) * Math.PI * 2;
+                    const color = this.colors[index % this.colors.length]
+
+                    const sectorMesh = this.createSector(this.outRadius, startAngle, endAngle, this.depth, color, item)
+                    startAngle = endAngle;
+
+                    this.group.add(sectorMesh);
+
+                })
+
+                //旋转
+                this.group.rotateX(-1.05)
+                //上移
+                this.group.position.y = this.outRadius / 5;
+
+                this.scene.add(this.group)
+
+            }
+            initText() {
+                for (let item of this.group.children) {
+                    if (item.type == 'Mesh') {
+                        this.createText(item, this.outRadius, this.width, this.height, item.rotation.z);
+                    }
+                }
+            }
+
+            initLegend() {
+                //创建图例，使用ul和li标签
+                const ul = document.createElement('ul');
+                ul.className = 'legend-list';
+                ul.style.marginTop = - this.outRadius / 1.7 + 'px';
+                ul.style.width = this.outRadius * 2 + 'px';
+                //domBox之后插入ul
+                this.domBox.parentNode.appendChild(ul);
+                const liWidthArr = []
+
+                for (let [index, item] of this.data.entries()) {
+                    const color = this.colors[index % this.colors.length];
+
+                    const li = document.createElement('li');
+                    li.className = 'legend-item';
+                    li.innerHTML = `<span class="legend-icon" style="background-color:${color}"></span><span class="legend-text">${item.text}</span>`;
+
+                    ul.appendChild(li);
+                    liWidthArr.push(li.clientWidth)
+
+                }
+                const minLiWidth = Math.max(...liWidthArr)
+                // inset style 
+                const style = document.createElement('style');
+                style.type = 'text/css';
+                style.innerHTML = `
+                .legend-item{
+                   min-width:${minLiWidth}px;
+                }
+                `;
+                document.getElementsByTagName('head')[0].appendChild(style);
+
+            }
+
+
+
+            getTotalValue() {
+                return this.data.reduce((sum, item) => sum + item.value, 0);
+            }
+            //画扇形
+            createSector(outRadius, startAngle, endAngle, depth, color, data) {
+
+                const shape = new THREE.Shape();
+                shape.moveTo(outRadius, 0);
+                // shape.lineTo(0, this.innerRadius);
+                shape.absarc(0, 0, this.innerRadius, 0, endAngle - startAngle, false);
+                shape.absarc(0, 0, outRadius, endAngle - startAngle, 0, true);
+
+                const extrudeSettings = {
+                    curveSegments: 40,//曲线分段数，数值越高曲线越平滑
+                    depth: this.depth,
+                    bevelEnabled: false,
+                    bevelSegments: 9,
+                    steps: 2,
+                    bevelSize: 0,
+                    bevelThickness: 0
+                };
+
+                // 创建扇形的几何体
+                const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+                const material = new THREE.MeshPhongMaterial({ color: color, opacity: 1, transparent: true });
+                const mesh = new THREE.Mesh(geometry, material);
+
+                mesh.position.set(0, 0, 0);
+
+                mesh.data = data;
+
+                mesh.rotateZ(startAngle);  // 旋转扇形以对齐其角度
+                mesh.rotateZ(Math.PI / 2); // 旋转90度，使第一个扇形从下边的中点开始
+                //保存当前扇形的中心角度
+                mesh.centerAngle = (startAngle + endAngle) / 2
+
+                //添加边框
+                const { border, topArcLine, bottomArcLine, innerArcLine } = this.createSectorBorder(outRadius, startAngle, endAngle, depth);
+                mesh.add(border);
+                mesh.add(topArcLine);
+                mesh.add(bottomArcLine);
+                mesh.add(innerArcLine);
+
+
+                return mesh
+            }
+
+            createSectorBorder(outRadius, startAngle, endAngle, depth, color = 0xffffff) {
+
+                // 创建边框的材质
+                const lineMaterial = new THREE.LineBasicMaterial({ color }); // 白色
+
+                // 创建边框的几何体
+                const borderGeometry = new THREE.BufferGeometry();
+                borderGeometry.setFromPoints([
+                    new THREE.Vector3(this.innerRadius, 0, 0),
+                    new THREE.Vector3(outRadius, 0, 0),
+                    new THREE.Vector3(outRadius, 0, depth + 0.01),
+                    new THREE.Vector3(this.innerRadius, 0, depth),
+                    new THREE.Vector3(this.innerRadius, 0, 0)
+                ]);
+
+                // 创建边框的网格
+                const border = new THREE.Line(borderGeometry, lineMaterial);
+
+                // 创建顶部和底部的圆弧线
+                const arcShape = new THREE.Shape();
+                arcShape.absarc(0, 0, outRadius, endAngle - startAngle, 0, true);
+                const arcPoints = arcShape.getPoints(50);
+                const arcGeometry = new THREE.BufferGeometry().setFromPoints(arcPoints);
+                const topArcLine = new THREE.Line(arcGeometry, lineMaterial);
+                const bottomArcLine = new THREE.Line(arcGeometry, lineMaterial);
+                bottomArcLine.position.z = depth; // 底部圆弧线的位置应该在扇形的底部
+
+                //内圆弧线
+                const innerArcShape = new THREE.Shape();
+                innerArcShape.absarc(0, 0, this.innerRadius, endAngle - startAngle, 0, true);
+                const innerArcPoints = innerArcShape.getPoints(50);
+                const innerArcGeometry = new THREE.BufferGeometry().setFromPoints(innerArcPoints);
+                const innerArcLine = new THREE.Line(innerArcGeometry, lineMaterial);
+                innerArcLine.position.z = depth; // 底部圆弧线的位置应该在扇形的底部
+
+
+
+
+                return { border, bottomArcLine, topArcLine, innerArcLine }
+            }
+
+            createText(mesh, outRadius, width, height, rotation) {
+
+                const { centerAngle, data } = mesh;
+
+                var div = document.createElement('div');
+                div.className = 'label';
+
+                div.style.fontSize = outRadius < 200 ? '10px' : '16px';
+                div.style.position = 'absolute';
+
+                div.innerHTML = data.value + '%';
+
+                this.domBox.appendChild(div);
+
+                const worldVector = new THREE.Vector3(outRadius * 0.8 * Math.cos(centerAngle - rotation + Math.PI / 2), outRadius * 0.8 * Math.sin(centerAngle - rotation + Math.PI / 2), outRadius / 4);
+                mesh.localToWorld(worldVector);
+                var standardVector = worldVector.project(this.camera);
+
+                // 根据WebGL标准设备坐标standardVector计算div标签在浏览器页面的坐标
+                var a = width / 2;
+                var b = height / 2;
+                var x = Math.round(standardVector.x * a + a); //标准设备坐标转屏幕坐标
+                var y = Math.round(-standardVector.y * b + b); //标准设备坐标转屏幕坐标
+
+                div.style.left = x - 6 + 'px';
+                div.style.top = y - 10 + 'px';
+            }
+
+        }
+
+        new Pie3d('#pie', DATA, COLORS, HEIGHT / 4)
+
+
+
+
+    </script>
+ 

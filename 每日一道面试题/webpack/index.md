@@ -7,3 +7,11 @@
 ## 04 webpack 的构建流程是怎样的
 
 ## 05 如何优化 webpack 的打包速度？
+
+![alt text](image.png)
+
+## 06 webpack 中文件指纹 hash、chunkhash、contenthash 有什么区别
+
+## 07 写一个 loader 和 Plugin
+
+## 08 babel原理ß

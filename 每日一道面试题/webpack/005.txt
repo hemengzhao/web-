@@ -8,6 +8,12 @@
 
 4. 使用多进程/多线程构建： 使用 thread-loader 或 happypack 插件可以启用多进程或多线程构建，加速 Loader 的执行。
 
+
+5. 压缩代码 
+    多进程压缩  
+    webpack-paralle-uglify-plugin  / thread-webpack-plugin   开启 paralle
+    mini-css-extract-plugin  开启css压缩
+
 5. 配置 resolve.modules： 使用 resolve.modules 配置指定模块的查找路径，避免逐级向上查找，提高模块解析速度。
 
 6. 配置 resolve.extensions： 使用 resolve.extensions 配置指定模块文件的查找后缀，避免遍历多个后缀查找文件。
@@ -26,7 +32,7 @@
 
 13. 开启生产模式： 在构建生产环境时，使用 Webpack 的 mode: 'production'，开启一些内置的优化，如压缩代码。
 
-14. 优化图片： 使用压缩、Base64 编码等方式优化图片，减少图片大小。
+14. 优化图片： 使用压缩（imagemin | image-webpack-plugin）、Base64 编码等方式优化图片，减少图片大小。
 
 15. 避免不必要的打包： 避免将不需要打包的文件加入到构建中，通过配置 exclude、include 等选项来排除或只包含特定的文件。
 
@@ -37,3 +43,5 @@
 18. 使用 DllPlugin 预编译依赖： 使用 DllPlugin 提前编译好一些固定不变的依赖，减少构建时间。
 
 通过以上优化措施，可以显著提高 Webpack 的构建速度，使得开发和构建过程更加高效。同时，可以根据具体项目和需求选择适合的优化方式，以达到最佳的优化效果。
+
+

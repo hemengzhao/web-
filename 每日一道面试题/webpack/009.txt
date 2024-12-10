@@ -1,0 +1,11 @@
+ source Map 是什么？ 生产环境怎么用
+
+ source map 将编译，打包，压缩后的代码映射回源码的过程
+ 打包压缩后的代码不具备良好的可读性
+
+ 线上环境三种处理方案
+
+ 1. hidden-soucre-map 借助sentry
+ 2. nosoucre-soucre-map 显示具体行数 以及查看源码错误栈   安全性比soucre高
+ 3.soucremap nginx  .map文件只对白名单开放ß
+ 

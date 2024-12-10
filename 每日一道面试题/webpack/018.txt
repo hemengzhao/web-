@@ -1,0 +1,32 @@
+什么是代码分割 （code Splitting） 如何在webpack中实现
+
+ code splitting  
+
+ 1. 入口起点配置：
+ 配置多个入口，不同部分的代码打包成独立的代码块
+
+ module.exports = {
+    entry: {
+        main: './src/main.js',
+        vendor: './src/vendor.js'
+    }
+ }
+
+
+2. 动态导入  Dynamic import
+按需加载，需要时下载执行
+// main.js
+import('./moduleA').then((module) => {
+    // 使用moduleA
+})
+
+3. splitChunks 插件
+自动拆分公共模块 并创建独立代码块  避免重复加载  提高代码使用率
+
+module.exports = {
+    optimization: {
+        splitChunks: {
+            chunks: 'all'
+        }
+    }
+}
