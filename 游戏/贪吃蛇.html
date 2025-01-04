@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>贪吃蛇</title>
+    <style>
+        #gameCanvas {
+            border: 2px solid #000;
+        }
+        .controls {
+            margin-top: 10px;
+        }
+        button {
+            padding: 5px 15px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div class="controls">
+        <button id="startBtn">开始</button>
+        <button id="pauseBtn">暂停</button>
+        <button id="restartBtn">重新开始</button>
+        <span>得分: <span id="score">0</span></span>
+    </div>
+
+    <script>
+        class Snake {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.gridSize = 20;
+                this.snake = [{x: 5, y: 5}]; // 蛇的初始位置
+                this.direction = 'right';
+                this.food = this.generateFood();
+                this.score = 0;
+                this.gameLoop = null;
+                this.isPaused = false;
+                this.speed = 150; // 移动速度(ms)
+
+                this.bindControls();
+            }
+
+            // 生成食物
+            generateFood() {
+                const maxX = (this.canvas.width / this.gridSize) - 1;
+                const maxY = (this.canvas.height / this.gridSize) - 1;
+                let food;
+                do {
+                    food = {
+                        x: Math.floor(Math.random() * maxX),
+                        y: Math.floor(Math.random() * maxY)
+                    };
+                } while (this.snake.some(segment => 
+                    segment.x === food.x && segment.y === food.y));
+                return food;
+            }
+
+            // 绘制游戏画面
+            draw() {
+                // 清空画布
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // 绘制蛇
+                this.ctx.fillStyle = '#4CAF50';
+                this.snake.forEach(segment => {
+                    this.ctx.fillRect(
+                        segment.x * this.gridSize,
+                        segment.y * this.gridSize,
+                        this.gridSize - 2,
+                        this.gridSize - 2
+                    );
+                });
+
+                // 绘制食物
+                this.ctx.fillStyle = '#FF5722';
+                this.ctx.fillRect(
+                    this.food.x * this.gridSize,
+                    this.food.y * this.gridSize,
+                    this.gridSize - 2,
+                    this.gridSize - 2
+                );
+            }
+
+            // 移动蛇
+            move() {
+                const head = {...this.snake[0]};
+
+                switch(this.direction) {
+                    case 'up': head.y--; break;
+                    case 'down': head.y++; break;
+                    case 'left': head.x--; break;
+                    case 'right': head.x++; break;
+                }
+
+                // 检查是否吃到食物
+                if (head.x === this.food.x && head.y === this.food.y) {
+                    this.food = this.generateFood();
+                    this.score += 10;
+                    document.getElementById('score').textContent = this.score;
+                } else {
+                    this.snake.pop();
+                }
+
+                // 检查是否撞墙或撞到自己
+                if (this.checkCollision(head)) {
+                    this.gameOver();
+                    return;
+                }
+
+                this.snake.unshift(head);
+                this.draw();
+            }
+
+            // 检查碰撞
+            checkCollision(head) {
+                return (
+                    head.x < 0 ||
+                    head.x >= this.canvas.width / this.gridSize ||
+                    head.y < 0 ||
+                    head.y >= this.canvas.height / this.gridSize ||
+                    this.snake.some(segment => segment.x === head.x && segment.y === head.y)
+                );
+            }
+
+            // 游戏结束
+            gameOver() {
+                clearInterval(this.gameLoop);
+                alert(`游戏结束！得分：${this.score}`);
+                this.reset();
+            }
+
+            // 重置游戏
+            reset() {
+                this.snake = [{x: 5, y: 5}];
+                this.direction = 'right';
+                this.food = this.generateFood();
+                this.score = 0;
+                document.getElementById('score').textContent = '0';
+                this.draw();
+            }
+
+            // 绑定控制
+            bindControls() {
+                // 键盘控制
+                document.addEventListener('keydown', (e) => {
+                    // 添加空格键暂停
+                    if (e.code === 'Space') {
+                        this.togglePause();
+                        return;
+                    }
+                    
+                    if (this.isPaused) return;
+                    
+                    switch(e.key) {
+                        case 'ArrowUp':
+                            if (this.direction !== 'down') this.direction = 'up';
+                            break;
+                        case 'ArrowDown':
+                            if (this.direction !== 'up') this.direction = 'down';
+                            break;
+                        case 'ArrowLeft':
+                            if (this.direction !== 'right') this.direction = 'left';
+                            break;
+                        case 'ArrowRight':
+                            if (this.direction !== 'left') this.direction = 'right';
+                            break;
+                    }
+                });
+
+                // 按钮控制
+                document.getElementById('startBtn').addEventListener('click', () => {
+                    if (!this.gameLoop) {
+                        this.start();
+                    }
+                });
+
+                document.getElementById('pauseBtn').addEventListener('click', () => {
+                    this.togglePause();
+                });
+
+                document.getElementById('restartBtn').addEventListener('click', () => {
+                    this.restart();
+                });
+            }
+
+            // 开始游戏
+            start() {
+                if (!this.gameLoop) {
+                    this.gameLoop = setInterval(() => {
+                        if (!this.isPaused) {
+                            this.move();
+                        }
+                    }, this.speed);
+                }
+            }
+
+            // 暂停/继续
+            togglePause() {
+                this.isPaused = !this.isPaused;
+                document.getElementById('pauseBtn').textContent = 
+                    this.isPaused ? '继续' : '暂停';
+            }
+
+            // 重新开始
+            restart() {
+                clearInterval(this.gameLoop);
+                this.gameLoop = null;
+                this.isPaused = false;
+                document.getElementById('pauseBtn').textContent = '暂停';
+                this.reset();
+                this.start();
+            }
+        }
+
+        // 初始化游戏
+        window.onload = () => {
+            const canvas = document.getElementById('gameCanvas');
+            const game = new Snake(canvas);
+            game.draw();
+        };
+    </script>
+</body>
+</html>

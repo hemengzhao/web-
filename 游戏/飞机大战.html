@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>飞机大战</title>
+    <style>
+        #gameCanvas {
+            border: 2px solid #333;
+            background-color: #000;
+        }
+        .game-container {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+        }
+        .info {
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            color: #333;
+        }
+        .controls button {
+            padding: 8px 16px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
+        <div class="info">
+            <h2>游戏信息</h2>
+            <p>得分: <span id="score">0</span></p>
+            <p>生命值: <span id="lives">3</span></p>
+            <div class="controls">
+                <button onclick="game.start()">开始游戏</button>
+                <button onclick="game.pause()">暂停/继续</button>
+            </div>
+            <div style="margin-top: 20px;">
+                <h3>操作说明：</h3>
+                <p>方向键：移动飞机</p>
+                <p>空格键：发射子弹</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class SpaceShooter {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.width = canvas.width;
+                this.height = canvas.height;
+                
+                // 游戏状态
+                this.isRunning = false;
+                this.isPaused = false;
+                this.score = 0;
+                this.lives = 3;
+                
+                // 玩家飞机
+                this.player = {
+                    x: this.width / 2,
+                    y: this.height - 50,
+                    width: 40,
+                    height: 40,
+                    speed: 5
+                };
+                
+                // 游戏对象
+                this.bullets = [];
+                this.enemies = [];
+                this.explosions = [];
+                
+                // 控制
+                this.keys = {
+                    ArrowLeft: false,
+                    ArrowRight: false,
+                    ArrowUp: false,
+                    ArrowDown: false,
+                    Space: false
+                };
+                this.bindControls();
+                
+                // 游戏配置
+                this.enemySpawnRate = 60; // 每60帧生成一个敌人
+                this.frameCount = 0;
+                
+                // 加载图片资源
+                this.loadImages();
+            }
+
+            loadImages() {
+                this.images = {
+                    player: new Image(),
+                    enemy: new Image(),
+                    bullet: new Image()
+                };
+                
+                this.images.player.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48cGF0aCBmaWxsPSIjMDBmIiBkPSJNMjAgMGwxMCA0MGgtMjB6Ii8+PC9zdmc+';
+                this.images.enemy.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgdmlld0JveD0iMCAwIDMwIDMwIj48cGF0aCBmaWxsPSIjZjAwIiBkPSJNMTUgMzBsMTUtMzBoLTMweiIvPjwvc3ZnPg==';
+                this.images.bullet.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjEwIiB2aWV3Qm94PSIwIDAgNSAxMCI+PHJlY3QgZmlsbD0iI2ZmMCIgd2lkdGg9IjUiIGhlaWdodD0iMTAiLz48L3N2Zz4=';
+            }
+
+            bindControls() {
+                // 按键按下时更新状态
+                document.addEventListener('keydown', (e) => {
+                    switch(e.code) {
+                        case 'ArrowLeft':
+                        case 'ArrowRight':
+                        case 'ArrowUp':
+                        case 'ArrowDown':
+                            this.keys[e.code] = true;
+                            break;
+                        case 'Space':
+                            if (!this.keys.Space) {  // 防止持续按住空格连发
+                                this.keys.Space = true;
+                                this.shoot();
+                            }
+                            break;
+                    }
+                    e.preventDefault();  // 防止按键默认行为
+                });
+
+                // 按键释放时更新状态
+                document.addEventListener('keyup', (e) => {
+                    switch(e.code) {
+                        case 'ArrowLeft':
+                        case 'ArrowRight':
+                        case 'ArrowUp':
+                        case 'ArrowDown':
+                        case 'Space':
+                            this.keys[e.code] = false;
+                            break;
+                    }
+                    e.preventDefault();
+                });
+            }
+
+            start() {
+                if (!this.isRunning) {
+                    this.isRunning = true;
+                    this.isPaused = false;
+                    this.score = 0;
+                    this.lives = 3;
+                    this.bullets = [];
+                    this.enemies = [];
+                    this.explosions = [];
+                    this.updateScore();
+                    this.updateLives();
+                    this.gameLoop();
+                }
+            }
+
+            pause() {
+                this.isPaused = !this.isPaused;
+            }
+
+            gameLoop() {
+                if (!this.isRunning) return;
+
+                if (!this.isPaused) {
+                    this.update();
+                    this.draw();
+                }
+
+                requestAnimationFrame(() => this.gameLoop());
+            }
+
+            update() {
+                // 更新玩家位置
+                if (this.keys.ArrowLeft) {
+                    this.player.x = Math.max(0, this.player.x - this.player.speed);
+                }
+                if (this.keys.ArrowRight) {
+                    this.player.x = Math.min(this.width - this.player.width, 
+                        this.player.x + this.player.speed);
+                }
+                if (this.keys.ArrowUp) {
+                    this.player.y = Math.max(0, this.player.y - this.player.speed);
+                }
+                if (this.keys.ArrowDown) {
+                    this.player.y = Math.min(this.height - this.player.height, 
+                        this.player.y + this.player.speed);
+                }
+
+                // 更新子弹位置
+                this.bullets = this.bullets.filter(bullet => {
+                    bullet.y -= 8;
+                    return bullet.y > 0;
+                });
+
+                // 生成敌人
+                if (this.frameCount % this.enemySpawnRate === 0) {
+                    this.enemies.push({
+                        x: Math.random() * (this.width - 30),
+                        y: -30,
+                        width: 30,
+                        height: 30,
+                        speed: 2 + Math.random() * 2
+                    });
+                }
+
+                // 更新敌人位置
+                this.enemies = this.enemies.filter(enemy => {
+                    enemy.y += enemy.speed;
+                    
+                    // 检查与玩家的碰撞
+                    if (this.checkCollision(enemy, this.player)) {
+                        this.lives--;
+                        this.updateLives();
+                        if (this.lives <= 0) {
+                            this.gameOver();
+                        }
+                        return false;
+                    }
+                    
+                    // 检查与子弹的碰撞
+                    for (let bullet of this.bullets) {
+                        if (this.checkCollision(enemy, bullet)) {
+                            this.score += 100;
+                            this.updateScore();
+                            this.explosions.push({
+                                x: enemy.x,
+                                y: enemy.y,
+                                size: 30,
+                                life: 10
+                            });
+                            return false;
+                        }
+                    }
+                    
+                    return enemy.y < this.height;
+                });
+
+                // 更新爆炸效果
+                this.explosions = this.explosions.filter(exp => {
+                    exp.life--;
+                    return exp.life > 0;
+                });
+
+                this.frameCount++;
+            }
+
+            draw() {
+                // 清空画布
+                this.ctx.clearRect(0, 0, this.width, this.height);
+
+                // 绘制玩家
+                this.ctx.drawImage(this.images.player, 
+                    this.player.x, this.player.y, 
+                    this.player.width, this.player.height);
+
+                // 绘制子弹
+                this.bullets.forEach(bullet => {
+                    this.ctx.drawImage(this.images.bullet, 
+                        bullet.x, bullet.y, bullet.width, bullet.height);
+                });
+
+                // 绘制敌人
+                this.enemies.forEach(enemy => {
+                    this.ctx.drawImage(this.images.enemy, 
+                        enemy.x, enemy.y, enemy.width, enemy.height);
+                });
+
+                // 绘制爆炸效果
+                this.explosions.forEach(exp => {
+                    this.ctx.beginPath();
+                    this.ctx.arc(exp.x + exp.size/2, exp.y + exp.size/2, 
+                        (10 - exp.life) * 3, 0, Math.PI * 2);
+                    this.ctx.fillStyle = `rgba(255, 100, 0, ${exp.life / 10})`;
+                    this.ctx.fill();
+                });
+            }
+
+            shoot() {
+                if (!this.isRunning || this.isPaused) return;
+                
+                this.bullets.push({
+                    x: this.player.x + this.player.width/2 - 2.5,
+                    y: this.player.y,
+                    width: 5,
+                    height: 10
+                });
+            }
+
+            checkCollision(rect1, rect2) {
+                return rect1.x < rect2.x + rect2.width &&
+                    rect1.x + rect1.width > rect2.x &&
+                    rect1.y < rect2.y + rect2.height &&
+                    rect1.y + rect1.height > rect2.y;
+            }
+
+            updateScore() {
+                document.getElementById('score').textContent = this.score;
+            }
+
+            updateLives() {
+                document.getElementById('lives').textContent = this.lives;
+            }
+
+            gameOver() {
+                this.isRunning = false;
+                alert(`游戏结束！得分：${this.score}`);
+            }
+        }
+
+        // 初始化游戏
+        const canvas = document.getElementById('gameCanvas');
+        const game = new SpaceShooter(canvas);
+    </script>
+</body>
+</html>

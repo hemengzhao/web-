@@ -1,31 +1,3 @@
-import './assets/main.css'
-
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-
-import App from './App.vue'
-import router from './router'
-
-const app = createApp(App)
-
-app.use(createPinia())
-app.use(router)
-
-app.mount('#app')
-
-// document.addEventListener('contextmenu', function(e) {
-//     e.preventDefault();  // 阻止默认右键菜单
-//     return false;
-// });
-
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'F12') {
-        e.preventDefault();  // 阻止F12键
-        return false;
-    }
-});
-
-
 // 创建自定义菜单
 const menu = document.createElement('div');
 menu.className = 'custom-menu';
@@ -97,42 +69,3 @@ document.addEventListener('contextmenu', (e) => {
 document.addEventListener('click', () => {
     menu.style.display = 'none';
 });
-
-
- // 方案三：更激进的防护措施
-(function () {
-    // 禁用所有控制台输出
-    const noConsole = () => {
-        window.console = {
-            log: () => {},
-            info: () => {},
-            warn: () => {},
-            debug: () => {},
-            error: () => {},
-            dir: () => {}
-        };
-    };
-
-    // 定时执行debugger
-    const antiDebug = () => {
-        setInterval(() => {
-            debugger;
-        }, 50);
-    };
-
-    // 检测Performance API
-    const checkPerformance = () => {
-        const start = performance.now();
-        debugger;
-        const end = performance.now();
-        if (end - start > 100) {
-            // 检测到调试器
-            location.href = "about:blank";
-        }
-    };
-
-    // 执行所有防护措施
-    noConsole();
-    antiDebug();
-    setInterval(checkPerformance, 1000);
-})();

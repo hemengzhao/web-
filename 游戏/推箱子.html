@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>推箱子</title>
+    <style>
+        .game-container {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+        }
+        #gameCanvas {
+            border: 2px solid #333;
+        }
+        .info {
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .controls button {
+            padding: 8px 16px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .cell {
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            background-size: contain;
+        }
+        .wall {
+            background-color: #8b4513;
+        }
+        .floor {
+            background-color: #deb887;
+        }
+        .box {
+            background-color: #cd853f;
+            border: 2px solid #8b4513;
+            box-sizing: border-box;
+        }
+        .target {
+            background-color: #90ee90;
+        }
+        .player {
+            background-color: #4169e1;
+            border-radius: 50%;
+        }
+        .box.on-target {
+            background-color: #32cd32;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div id="gameBoard"></div>
+        <div class="info">
+            <h2>推箱子</h2>
+            <p>步数: <span id="moves">0</span></p>
+            <div class="controls">
+                <button onclick="game.restart()">重新开始</button>
+                <button onclick="game.undo()">撤销</button>
+                <button onclick="game.nextLevel()">下一关</button>
+            </div>
+            <div style="margin-top: 20px;">
+                <h3>操作说明：</h3>
+                <p>方向键：移动</p>
+                <p>R：重新开始</p>
+                <p>Z：撤销</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class Sokoban {
+            constructor() {
+                this.levels = [
+                    // 第一关
+                    {
+                        map: [
+                            [1, 1, 1, 1, 1, 1, 1],
+                            [1, 0, 0, 0, 0, 0, 1],
+                            [1, 0, 2, 3, 2, 0, 1],
+                            [1, 0, 3, 4, 3, 0, 1],
+                            [1, 0, 2, 3, 2, 0, 1],
+                            [1, 0, 0, 0, 0, 0, 1],
+                            [1, 1, 1, 1, 1, 1, 1]
+                        ],
+                        player: { x: 3, y: 3 }
+                    },
+                    // 第二关
+                    {
+                        map: [
+                            [1, 1, 1, 1, 1, 1, 1, 1],
+                            [1, 0, 0, 0, 0, 0, 0, 1],
+                            [1, 0, 3, 2, 2, 3, 0, 1],
+                            [1, 0, 2, 3, 3, 2, 0, 1],
+                            [1, 0, 3, 2, 2, 3, 0, 1],
+                            [1, 0, 0, 0, 4, 0, 0, 1],
+                            [1, 1, 1, 1, 1, 1, 1, 1]
+                        ],
+                        player: { x: 4, y: 5 }
+                    }
+                ];
+                
+                this.currentLevel = 0;
+                this.moves = 0;
+                this.history = [];
+                this.cellSize = 40;
+                
+                this.initializeGame();
+                this.bindControls();
+            }
+
+            initializeGame() {
+                this.gameState = JSON.parse(JSON.stringify(this.levels[this.currentLevel]));
+                this.moves = 0;
+                this.history = [];
+                this.updateUI();
+            }
+
+            bindControls() {
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case 'ArrowUp':
+                            this.move(0, -1);
+                            break;
+                        case 'ArrowDown':
+                            this.move(0, 1);
+                            break;
+                        case 'ArrowLeft':
+                            this.move(-1, 0);
+                            break;
+                        case 'ArrowRight':
+                            this.move(1, 0);
+                            break;
+                        case 'r':
+                        case 'R':
+                            this.restart();
+                            break;
+                        case 'z':
+                        case 'Z':
+                            this.undo();
+                            break;
+                    }
+                });
+            }
+
+            move(dx, dy) {
+                const player = this.gameState.player;
+                const newX = player.x + dx;
+                const newY = player.y + dy;
+                const map = this.gameState.map;
+
+                // 检查是否可以移动
+                if (map[newY][newX] === 1) return; // 撞墙
+
+                // 如果前方是箱子
+                if (map[newY][newX] === 2 || map[newY][newX] === 5) {
+                    const nextX = newX + dx;
+                    const nextY = newY + dy;
+                    
+                    // 检查箱子是否可以移动
+                    if (map[nextY][nextX] === 1 || 
+                        map[nextY][nextX] === 2 || 
+                        map[nextY][nextX] === 5) return;
+
+                    // 保存移动前的状态
+                    this.saveState();
+
+                    // 移动箱子
+                    const isBoxOnTarget = map[newY][newX] === 5;
+                    const isNextOnTarget = map[nextY][nextX] === 3;
+                    
+                    map[newY][newX] = isBoxOnTarget ? 3 : 0;
+                    map[nextY][nextX] = isNextOnTarget ? 5 : 2;
+                } else {
+                    // 保存移动前的状态
+                    this.saveState();
+                }
+
+                // 移动玩家
+                player.x = newX;
+                player.y = newY;
+                this.moves++;
+
+                this.updateUI();
+                this.checkWin();
+            }
+
+            saveState() {
+                this.history.push({
+                    map: JSON.parse(JSON.stringify(this.gameState.map)),
+                    player: { ...this.gameState.player },
+                    moves: this.moves
+                });
+            }
+
+            undo() {
+                if (this.history.length === 0) return;
+                
+                const previousState = this.history.pop();
+                this.gameState.map = previousState.map;
+                this.gameState.player = previousState.player;
+                this.moves = previousState.moves;
+                this.updateUI();
+            }
+
+            restart() {
+                this.initializeGame();
+            }
+
+            nextLevel() {
+                if (this.currentLevel < this.levels.length - 1) {
+                    this.currentLevel++;
+                    this.initializeGame();
+                }
+            }
+
+            checkWin() {
+                // 检查是否所有目标点都有箱子
+                for (let y = 0; y < this.gameState.map.length; y++) {
+                    for (let x = 0; x < this.gameState.map[y].length; x++) {
+                        if (this.gameState.map[y][x] === 3) return false;
+                    }
+                }
+                alert('恭喜通关！');
+                this.nextLevel();
+            }
+
+            updateUI() {
+                const gameBoard = document.getElementById('gameBoard');
+                gameBoard.innerHTML = '';
+                gameBoard.style.position = 'relative';
+                gameBoard.style.width = (this.gameState.map[0].length * this.cellSize) + 'px';
+                gameBoard.style.height = (this.gameState.map.length * this.cellSize) + 'px';
+
+                // 绘制地图
+                for (let y = 0; y < this.gameState.map.length; y++) {
+                    for (let x = 0; x < this.gameState.map[y].length; x++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        cell.style.left = (x * this.cellSize) + 'px';
+                        cell.style.top = (y * this.cellSize) + 'px';
+
+                        switch(this.gameState.map[y][x]) {
+                            case 0: // 空地
+                                cell.classList.add('floor');
+                                break;
+                            case 1: // 墙
+                                cell.classList.add('wall');
+                                break;
+                            case 2: // 箱子
+                                cell.classList.add('box');
+                                break;
+                            case 3: // 目标点
+                                cell.classList.add('target');
+                                break;
+                            case 5: // 箱子在目标点上
+                                cell.classList.add('box', 'on-target');
+                                break;
+                        }
+                        gameBoard.appendChild(cell);
+                    }
+                }
+
+                // 绘制玩家
+                const player = document.createElement('div');
+                player.className = 'cell player';
+                player.style.left = (this.gameState.player.x * this.cellSize) + 'px';
+                player.style.top = (this.gameState.player.y * this.cellSize) + 'px';
+                gameBoard.appendChild(player);
+
+                // 更新步数
+                document.getElementById('moves').textContent = this.moves;
+            }
+        }
+
+        // 初始化游戏
+        const game = new Sokoban();
+    </script>
+</body>
+</html>

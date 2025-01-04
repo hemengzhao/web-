@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>五子棋</title>
+    <style>
+        .game-container {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+        }
+        #gameCanvas {
+            border: 2px solid #333;
+            background-color: #DEB887;
+        }
+        .info {
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .current-player {
+            margin-bottom: 20px;
+        }
+        .controls button {
+            padding: 8px 16px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .black-piece {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: black;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+        .white-piece {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: white;
+            border: 1px solid #333;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="600" height="600"></canvas>
+        <div class="info">
+            <div class="current-player">
+                <h3>当前回合:</h3>
+                <div id="currentPlayer">
+                    <span class="black-piece"></span>黑棋
+                </div>
+            </div>
+            <div class="controls">
+                <button id="restartBtn">重新开始</button>
+                <button id="undoBtn">悔棋</button>
+            </div>
+            <div id="winner"></div>
+        </div>
+    </div>
+
+    <script>
+        class Gomoku {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.gridSize = 30;
+                this.padding = 30;
+                this.boardSize = 15; // 15x15的棋盘
+                this.pieces = []; // 存储棋子位置
+                this.history = []; // 存储历史步骤
+                this.currentPlayer = 'black';
+                this.gameOver = false;
+
+                this.initBoard();
+                this.bindEvents();
+            }
+
+            // 初始化棋盘
+            initBoard() {
+                // 清空棋盘
+                this.pieces = Array(this.boardSize).fill().map(() => 
+                    Array(this.boardSize).fill(null)
+                );
+                this.history = [];
+                this.currentPlayer = 'black';
+                this.gameOver = false;
+                this.updateCurrentPlayerDisplay();
+                document.getElementById('winner').textContent = '';
+
+                // 绘制棋盘
+                this.drawBoard();
+            }
+
+            // 绘制棋盘
+            drawBoard() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // 绘制网格线
+                for (let i = 0; i < this.boardSize; i++) {
+                    // 横线
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.padding, this.padding + i * this.gridSize);
+                    this.ctx.lineTo(
+                        this.padding + (this.boardSize - 1) * this.gridSize, 
+                        this.padding + i * this.gridSize
+                    );
+                    this.ctx.stroke();
+
+                    // 竖线
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.padding + i * this.gridSize, this.padding);
+                    this.ctx.lineTo(
+                        this.padding + i * this.gridSize, 
+                        this.padding + (this.boardSize - 1) * this.gridSize
+                    );
+                    this.ctx.stroke();
+                }
+
+                // 绘制天元和星位
+                const stars = [
+                    [3, 3], [11, 3], [7, 7],
+                    [3, 11], [11, 11]
+                ];
+                stars.forEach(([x, y]) => {
+                    this.ctx.beginPath();
+                    this.ctx.arc(
+                        this.padding + x * this.gridSize,
+                        this.padding + y * this.gridSize,
+                        4, 0, Math.PI * 2
+                    );
+                    this.ctx.fill();
+                });
+
+                // 绘制所有棋子
+                this.pieces.forEach((row, y) => {
+                    row.forEach((piece, x) => {
+                        if (piece) {
+                            this.drawPiece(x, y, piece);
+                        }
+                    });
+                });
+            }
+
+            // 绘制棋子
+            drawPiece(x, y, color) {
+                this.ctx.beginPath();
+                this.ctx.arc(
+                    this.padding + x * this.gridSize,
+                    this.padding + y * this.gridSize,
+                    this.gridSize * 0.4,
+                    0,
+                    Math.PI * 2
+                );
+                this.ctx.fillStyle = color;
+                if (color === 'white') {
+                    this.ctx.strokeStyle = '#333';
+                    this.ctx.stroke();
+                }
+                this.ctx.fill();
+            }
+
+            // 获取点击位置对应的棋盘坐标
+            getGridPosition(x, y) {
+                const gridX = Math.round((x - this.padding) / this.gridSize);
+                const gridY = Math.round((y - this.padding) / this.gridSize);
+                
+                if (gridX >= 0 && gridX < this.boardSize && 
+                    gridY >= 0 && gridY < this.boardSize) {
+                    return [gridX, gridY];
+                }
+                return null;
+            }
+
+            // 放置棋子
+            placePiece(x, y) {
+                if (this.gameOver || this.pieces[y][x]) return;
+
+                this.pieces[y][x] = this.currentPlayer;
+                this.history.push([x, y, this.currentPlayer]);
+                this.drawPiece(x, y, this.currentPlayer);
+
+                if (this.checkWin(x, y)) {
+                    this.gameOver = true;
+                    document.getElementById('winner').textContent = 
+                        `${this.currentPlayer === 'black' ? '黑' : '白'}棋胜利！`;
+                    return;
+                }
+
+                this.currentPlayer = this.currentPlayer === 'black' ? 'white' : 'black';
+                this.updateCurrentPlayerDisplay();
+            }
+
+            // 更新当前玩家显示
+            updateCurrentPlayerDisplay() {
+                const display = document.getElementById('currentPlayer');
+                display.innerHTML = this.currentPlayer === 'black' ? 
+                    '<span class="black-piece"></span>黑棋' :
+                    '<span class="white-piece"></span>白棋';
+            }
+
+            // 检查胜利条件
+            checkWin(x, y) {
+                const directions = [
+                    [[0, 1], [0, -1]],  // 垂直
+                    [[1, 0], [-1, 0]],  // 水平
+                    [[1, 1], [-1, -1]], // 对角线
+                    [[1, -1], [-1, 1]]  // 反对角线
+                ];
+
+                return directions.some(direction => {
+                    const count = 1 + // 当前位置
+                        this.countPieces(x, y, direction[0][0], direction[0][1]) +
+                        this.countPieces(x, y, direction[1][0], direction[1][1]);
+                    return count >= 5;
+                });
+            }
+
+            // 计算连续棋子数
+            countPieces(x, y, dx, dy) {
+                const color = this.pieces[y][x];
+                let count = 0;
+                let currentX = x + dx;
+                let currentY = y + dy;
+
+                while (
+                    currentX >= 0 && currentX < this.boardSize &&
+                    currentY >= 0 && currentY < this.boardSize &&
+                    this.pieces[currentY][currentX] === color
+                ) {
+                    count++;
+                    currentX += dx;
+                    currentY += dy;
+                }
+
+                return count;
+            }
+
+            // 悔棋
+            undo() {
+                if (this.history.length === 0 || this.gameOver) return;
+
+                const [x, y] = this.history.pop();
+                this.pieces[y][x] = null;
+                this.currentPlayer = this.currentPlayer === 'black' ? 'white' : 'black';
+                this.updateCurrentPlayerDisplay();
+                this.drawBoard();
+                this.gameOver = false;
+                document.getElementById('winner').textContent = '';
+            }
+
+            // 绑定事件
+            bindEvents() {
+                this.canvas.addEventListener('click', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const position = this.getGridPosition(x, y);
+                    
+                    if (position) {
+                        this.placePiece(position[0], position[1]);
+                    }
+                });
+
+                document.getElementById('restartBtn').addEventListener('click', () => {
+                    this.initBoard();
+                });
+
+                document.getElementById('undoBtn').addEventListener('click', () => {
+                    this.undo();
+                });
+            }
+        }
+
+        // 初始化游戏
+        window.onload = () => {
+            const canvas = document.getElementById('gameCanvas');
+            const game = new Gomoku(canvas);
+        };
+    </script>
+</body>
+</html>

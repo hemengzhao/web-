@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>炸金花</title>
+    <style>
+        .game-container {
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .player-area {
+            border: 2px solid #ccc;
+            margin: 10px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .current-player {
+            background-color: #e8f5e9;
+        }
+        .card {
+            display: inline-block;
+            width: 60px;
+            height: 90px;
+            border: 1px solid #000;
+            border-radius: 5px;
+            margin: 5px;
+            text-align: center;
+            line-height: 90px;
+            background-color: white;
+            font-size: 16px;
+        }
+        .hidden-card {
+            background-color: #b71c1c;
+            color: white;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            padding: 8px 16px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+        .winner {
+            background-color: #fff9c4;
+        }
+        .folded {
+            background-color: #eeeeee;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="setup-controls">
+            <input type="number" id="playerCount" min="2" max="6" value="3">
+            <button onclick="initGame()">开始新游戏</button>
+        </div>
+        <div class="game-area"></div>
+        <div class="controls">
+            <button onclick="game.look()">看牌</button>
+            <button onclick="game.follow()">跟注</button>
+            <button onclick="game.raise()">加注</button>
+            <button onclick="game.fold()">弃牌</button>
+        </div>
+        <div class="game-info">
+            <p>当前池金额: <span id="potAmount">0</span></p>
+            <p>当前最小跟注: <span id="minBet">0</span></p>
+        </div>
+    </div>
+
+    <script>
+        class PokerGame {
+            constructor(playerCount) {
+                this.playerCount = playerCount;
+                this.players = [];
+                this.deck = [];
+                this.currentPlayerIndex = 0;
+                this.pot = 0;
+                this.minBet = 100;
+                this.currentBet = 0;
+                this.gameStarted = false;
+                this.initializeDeck();
+                this.initializePlayers();
+            }
+
+            initializeDeck() {
+                const suits = ['♠', '♥', '♣', '♦'];
+                const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+                this.deck = [];
+                
+                for (let suit of suits) {
+                    for (let value of values) {
+                        this.deck.push({
+                            suit,
+                            value,
+                            numericValue: values.indexOf(value)
+                        });
+                    }
+                }
+            }
+
+            initializePlayers() {
+                this.players = [];
+                for (let i = 0; i < this.playerCount; i++) {
+                    this.players.push({
+                        id: i,
+                        name: `玩家${i + 1}`,
+                        cards: [],
+                        chips: 1000,
+                        bet: 0,
+                        hasSeen: false,
+                        folded: false
+                    });
+                }
+            }
+
+            shuffle() {
+                for (let i = this.deck.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
+                }
+            }
+
+            dealCards() {
+                this.shuffle();
+                this.players.forEach(player => {
+                    player.cards = this.deck.splice(0, 3);
+                    player.hasSeen = false;
+                    player.folded = false;
+                    player.bet = 0;
+                });
+                this.pot = 0;
+                this.currentBet = this.minBet;
+                this.gameStarted = true;
+                this.updateUI();
+            }
+
+            look() {
+                const player = this.players[this.currentPlayerIndex];
+                if (!player.hasSeen) {
+                    player.hasSeen = true;
+                    this.updateUI();
+                }
+            }
+
+            follow() {
+                const player = this.players[this.currentPlayerIndex];
+                if (player.chips >= this.currentBet - player.bet) {
+                    const betAmount = this.currentBet - player.bet;
+                    player.chips -= betAmount;
+                    player.bet += betAmount;
+                    this.pot += betAmount;
+                    this.nextPlayer();
+                }
+            }
+
+            raise() {
+                const player = this.players[this.currentPlayerIndex];
+                const raiseAmount = this.currentBet + this.minBet;
+                if (player.chips >= raiseAmount - player.bet) {
+                    const betAmount = raiseAmount - player.bet;
+                    player.chips -= betAmount;
+                    player.bet += betAmount;
+                    this.pot += betAmount;
+                    this.currentBet = raiseAmount;
+                    this.nextPlayer();
+                }
+            }
+
+            fold() {
+                const player = this.players[this.currentPlayerIndex];
+                player.folded = true;
+                this.nextPlayer();
+                
+                // 检查是否只剩一个玩家
+                const activePlayers = this.players.filter(p => !p.folded);
+                if (activePlayers.length === 1) {
+                    this.endGame(activePlayers[0]);
+                }
+            }
+
+            nextPlayer() {
+                do {
+                    this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.playerCount;
+                } while (this.players[this.currentPlayerIndex].folded);
+
+                // 检查是否所有未弃牌的玩家都已经下注相同金额
+                const activePlayers = this.players.filter(p => !p.folded);
+                const allBetsEqual = activePlayers.every(p => p.bet === this.currentBet);
+                
+                if (allBetsEqual && this.allPlayersSeen()) {
+                    this.endGame();
+                }
+
+                this.updateUI();
+            }
+
+            allPlayersSeen() {
+                return this.players.every(p => p.hasSeen || p.folded);
+            }
+
+            getHandRank(cards) {
+                // 计算牌型大小
+                // 豹子 > 同花顺 > 同花 > 顺子 > 对子 > 单张
+                const values = cards.map(c => c.numericValue).sort((a, b) => a - b);
+                const suits = cards.map(c => c.suit);
+                
+                // 检查豹子
+                if (values[0] === values[1] && values[1] === values[2]) {
+                    return { rank: 6, value: values[0] };
+                }
+                
+                // 检查同花
+                const isFlush = suits[0] === suits[1] && suits[1] === suits[2];
+                
+                // 检查顺子
+                const isStraight = (values[2] - values[1] === 1 && values[1] - values[0] === 1) ||
+                    (values[0] === 0 && values[1] === 11 && values[2] === 12); // A23特殊顺子
+                
+                if (isFlush && isStraight) {
+                    return { rank: 5, value: values[2] };
+                }
+                
+                if (isFlush) {
+                    return { rank: 4, value: values[2] };
+                }
+                
+                if (isStraight) {
+                    return { rank: 3, value: values[2] };
+                }
+                
+                // 检查对子
+                if (values[0] === values[1] || values[1] === values[2]) {
+                    return { rank: 2, value: values[1] };
+                }
+                
+                // 单张
+                return { rank: 1, value: values[2] };
+            }
+
+            endGame(winner = null) {
+                if (!winner) {
+                    const activePlayers = this.players.filter(p => !p.folded);
+                    const playerRanks = activePlayers.map(player => ({
+                        player,
+                        rank: this.getHandRank(player.cards)
+                    }));
+                    
+                    playerRanks.sort((a, b) => {
+                        if (a.rank.rank === b.rank.rank) {
+                            return b.rank.value - a.rank.value;
+                        }
+                        return b.rank.rank - a.rank.rank;
+                    });
+                    
+                    winner = playerRanks[0].player;
+                }
+                
+                winner.chips += this.pot;
+                this.gameStarted = false;
+                this.updateUI();
+                alert(`${winner.name}获胜！赢得${this.pot}筹码`);
+            }
+
+            updateUI() {
+                const gameArea = document.querySelector('.game-area');
+                gameArea.innerHTML = '';
+                
+                this.players.forEach((player, index) => {
+                    const playerDiv = document.createElement('div');
+                    playerDiv.className = `player-area ${index === this.currentPlayerIndex ? 'current-player' : ''} ${player.folded ? 'folded' : ''}`;
+                    
+                    let cardsHTML = '';
+                    player.cards.forEach(card => {
+                        const isHidden = !player.hasSeen && index === this.currentPlayerIndex || 
+                                       player.hasSeen && index !== this.currentPlayerIndex;
+                        cardsHTML += `
+                            <div class="card ${isHidden ? 'hidden-card' : ''}">
+                                ${isHidden ? '?' : card.suit + card.value}
+                            </div>
+                        `;
+                    });
+                    
+                    playerDiv.innerHTML = `
+                        <h3>${player.name}</h3>
+                        <p>筹码: ${player.chips}</p>
+                        <p>当前下注: ${player.bet}</p>
+                        <div class="cards">
+                            ${cardsHTML}
+                        </div>
+                    `;
+                    
+                    gameArea.appendChild(playerDiv);
+                });
+                
+                document.getElementById('potAmount').textContent = this.pot;
+                document.getElementById('minBet').textContent = this.currentBet;
+                
+                // 更新按钮状态
+                const buttons = document.querySelectorAll('.controls button');
+                buttons.forEach(button => {
+                    button.disabled = !this.gameStarted;
+                });
+            }
+        }
+
+        let game;
+
+        function initGame() {
+            const playerCount = parseInt(document.getElementById('playerCount').value);
+            if (playerCount >= 2 && playerCount <= 6) {
+                game = new PokerGame(playerCount);
+                game.dealCards();
+            } else {
+                alert('请输入2-6之间的玩家数量');
+            }
+        }
+    </script>
+</body>
+</html>
