@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>纸牌接龙</title>
+    <style>
+        .game-container {
+            padding: 20px;
+            user-select: none;
+        }
+        .game-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .foundation, .tableau-pile {
+            width: 100px;
+            min-height: 140px;
+            border: 2px solid #666;
+            border-radius: 5px;
+            position: relative;
+        }
+        .stock-waste {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .card {
+            width: 90px;
+            height: 130px;
+            border: 1px solid #000;
+            border-radius: 5px;
+            background: white;
+            position: absolute;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+        }
+        .card.red {
+            color: red;
+        }
+        .card.black {
+            color: black;
+        }
+        .card.face-down {
+            background: #00008b;
+            color: white;
+        }
+        .card.dragging {
+            opacity: 0.5;
+        }
+        .foundation-area, .tableau-area {
+            display: flex;
+            gap: 10px;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            padding: 8px 16px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .area-label {
+            text-align: center;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+        .empty-pile {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #999;
+            font-size: 14px;
+        }
+        .game-tips {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .game-tips h3 {
+            margin-top: 0;
+            color: #2196F3;
+        }
+        .tutorial-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .tutorial-modal {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .tutorial-step {
+            display: none;
+            margin-bottom: 20px;
+        }
+        .tutorial-step.active {
+            display: block;
+        }
+        .tutorial-controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .tutorial-controls button {
+            padding: 8px 20px;
+            margin: 0 10px;
+        }
+        .tutorial-image {
+            max-width: 100%;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="controls">
+            <button onclick="game.newGame()">新游戏</button>
+            <button onclick="game.undo()">撤销</button>
+            <button onclick="game.showHelp()">帮助</button>
+        </div>
+        <div class="game-area">
+            <div class="stock-waste">
+                <div>
+                    <div class="area-label">牌堆</div>
+                    <div id="stock" class="foundation">
+                        <div class="empty-pile">点击抽牌</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="area-label">弃牌区</div>
+                    <div id="waste" class="foundation">
+                        <div class="empty-pile">暂无弃牌</div>
+                    </div>
+                </div>
+            </div>
+            <div class="foundation-area">
+                <div>
+                    <div class="area-label">♠基础区</div>
+                    <div id="foundation0" class="foundation">
+                        <div class="empty-pile">放置A♠</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="area-label">♥基础区</div>
+                    <div id="foundation1" class="foundation">
+                        <div class="empty-pile">放置A♥</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="area-label">♣基础区</div>
+                    <div id="foundation2" class="foundation">
+                        <div class="empty-pile">放置A♣</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="area-label">♦基础区</div>
+                    <div id="foundation3" class="foundation">
+                        <div class="empty-pile">放置A♦</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tableau-area">
+            <div>
+                <div class="area-label">工作区</div>
+                <div id="tableau0" class="tableau-pile">
+                    <div class="empty-pile">放置K</div>
+                </div>
+            </div>
+            <div id="tableau1" class="tableau-pile"></div>
+            <div id="tableau2" class="tableau-pile"></div>
+            <div id="tableau3" class="tableau-pile"></div>
+            <div id="tableau4" class="tableau-pile"></div>
+            <div id="tableau5" class="tableau-pile"></div>
+            <div id="tableau6" class="tableau-pile"></div>
+        </div>
+        
+        <div class="game-tips">
+            <h3>游戏规则提示：</h3>
+            <ul>
+                <li>基础区：按照花色从A开始向上堆叠到K</li>
+                <li>工作区：按照红黑交替顺序从K向下堆叠</li>
+                <li>空的工作区只能放置K</li>
+                <li>可以移动整列已翻开的卡牌</li>
+                <li>点击牌堆抽取新牌，用完后会重新洗牌</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        class Solitaire {
+            constructor() {
+                this.deck = [];
+                this.foundations = [[], [], [], []];
+                this.tableau = [[], [], [], [], [], [], []];
+                this.stock = [];
+                this.waste = [];
+                this.history = [];
+                this.draggingCards = null;
+                this.draggingElement = null;
+                
+                this.initializeDeck();
+                this.setupEventListeners();
+                this.newGame();
+                this.showTutorial();
+            }
+
+            initializeDeck() {
+                const suits = ['♠', '♥', '♣', '♦'];
+                const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+                
+                suits.forEach(suit => {
+                    values.forEach((value, index) => {
+                        this.deck.push({
+                            suit,
+                            value,
+                            color: suit === '♥' || suit === '♦' ? 'red' : 'black',
+                            rank: index + 1,
+                            faceUp: false
+                        });
+                    });
+                });
+            }
+
+            shuffle() {
+                for (let i = this.deck.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
+                }
+            }
+
+            newGame() {
+                this.initializeDeck();
+                this.shuffle();
+                this.dealCards();
+                this.updateUI();
+            }
+
+            dealCards() {
+                this.foundations = [[], [], [], []];
+                this.tableau = [[], [], [], [], [], [], []];
+                this.stock = [];
+                this.waste = [];
+                
+                // 发牌到tableau
+                for (let i = 0; i < 7; i++) {
+                    for (let j = i; j < 7; j++) {
+                        const card = this.deck.pop();
+                        card.faceUp = i === j;
+                        this.tableau[j].push(card);
+                    }
+                }
+                
+                // 剩余牌放入stock
+                this.stock = this.deck;
+                this.deck = [];
+            }
+
+            setupEventListeners() {
+                document.addEventListener('mousedown', (e) => this.handleDragStart(e));
+                document.addEventListener('mousemove', (e) => this.handleDragMove(e));
+                document.addEventListener('mouseup', () => this.handleDragEnd());
+                
+                document.getElementById('stock').addEventListener('click', () => this.drawCard());
+            }
+
+            handleDragStart(e) {
+                const card = e.target.closest('.card');
+                if (!card) return;
+                
+                const pile = card.parentElement;
+                if (!pile) return;
+                
+                const pileId = pile.id;
+                const cards = this.getCardsFromElement(card);
+                
+                if (cards && this.isValidDrag(cards, pileId)) {
+                    this.draggingCards = cards;
+                    this.draggingElement = card;
+                    card.classList.add('dragging');
+                    
+                    // 记录拖动起始位置的偏移
+                    this.dragOffset = {
+                        x: e.clientX - card.offsetLeft,
+                        y: e.clientY - card.offsetTop
+                    };
+                }
+            }
+
+            handleDragMove(e) {
+                if (this.draggingElement) {
+                    const x = e.clientX - this.dragOffset.x;
+                    const y = e.clientY - this.dragOffset.y;
+                    
+                    this.draggingElement.style.left = x + 'px';
+                    this.draggingElement.style.top = y + 'px';
+                    this.draggingElement.style.zIndex = '1000';
+                }
+            }
+
+            handleDragEnd() {
+                if (!this.draggingElement) return;
+                
+                const targetElement = document.elementFromPoint(
+                    event.clientX,
+                    event.clientY
+                );
+                
+                if (targetElement) {
+                    const targetPile = targetElement.closest('.foundation, .tableau-pile');
+                    if (targetPile && this.isValidDrop(this.draggingCards, targetPile.id)) {
+                        this.moveCards(this.draggingCards, targetPile.id);
+                    }
+                }
+                
+                this.draggingElement.classList.remove('dragging');
+                this.draggingElement.style.zIndex = '';
+                this.draggingElement = null;
+                this.draggingCards = null;
+                
+                this.updateUI();
+            }
+
+            isValidDrag(cards, sourceId) {
+                if (sourceId.startsWith('foundation')) {
+                    return cards.length === 1;
+                }
+                
+                if (sourceId.startsWith('tableau')) {
+                    return cards.every(card => card.faceUp);
+                }
+                
+                if (sourceId === 'waste') {
+                    return cards.length === 1;
+                }
+                
+                return false;
+            }
+
+            isValidDrop(cards, targetId) {
+                if (!cards || !cards.length) return false;
+                
+                if (targetId.startsWith('foundation')) {
+                    const foundationIndex = parseInt(targetId.slice(-1));
+                    const foundation = this.foundations[foundationIndex];
+                    
+                    if (cards.length !== 1) return false;
+                    
+                    const card = cards[0];
+                    if (foundation.length === 0) {
+                        return card.rank === 1; // Ace
+                    }
+                    
+                    const topCard = foundation[foundation.length - 1];
+                    return card.suit === topCard.suit && card.rank === topCard.rank + 1;
+                }
+                
+                if (targetId.startsWith('tableau')) {
+                    const tableauIndex = parseInt(targetId.slice(-1));
+                    const tableau = this.tableau[tableauIndex];
+                    
+                    if (tableau.length === 0) {
+                        return cards[0].rank === 13; // King
+                    }
+                    
+                    const topCard = tableau[tableau.length - 1];
+                    return cards[0].color !== topCard.color && 
+                           cards[0].rank === topCard.rank - 1;
+                }
+                
+                return false;
+            }
+
+            moveCards(cards, targetId) {
+                // 保存移动前的状态
+                this.saveState();
+                
+                if (targetId.startsWith('foundation')) {
+                    const foundationIndex = parseInt(targetId.slice(-1));
+                    this.foundations[foundationIndex].push(cards[0]);
+                } else if (targetId.startsWith('tableau')) {
+                    const tableauIndex = parseInt(targetId.slice(-1));
+                    this.tableau[tableauIndex].push(...cards);
+                }
+                
+                // 从源位置移除卡牌
+                this.removeCardsFromSource(cards);
+                
+                // 检查胜利条件
+                this.checkWin();
+            }
+
+            removeCardsFromSource(cards) {
+                // 从waste中移除
+                this.waste = this.waste.filter(card => !cards.includes(card));
+                
+                // 从tableau中移除
+                this.tableau.forEach(pile => {
+                    const index = pile.findIndex(card => card === cards[0]);
+                    if (index !== -1) {
+                        pile.splice(index, pile.length);
+                        if (pile.length > 0) {
+                            pile[pile.length - 1].faceUp = true;
+                        }
+                    }
+                });
+                
+                // 从foundation中移除
+                this.foundations.forEach(pile => {
+                    const index = pile.findIndex(card => card === cards[0]);
+                    if (index !== -1) {
+                        pile.splice(index, 1);
+                    }
+                });
+            }
+
+            drawCard() {
+                if (this.stock.length === 0) {
+                    // 如果stock为空，将waste中的牌重新放入stock
+                    this.stock = this.waste.reverse();
+                    this.waste = [];
+                    this.stock.forEach(card => card.faceUp = false);
+                } else {
+                    // 从stock中抽一张牌到waste
+                    const card = this.stock.pop();
+                    card.faceUp = true;
+                    this.waste.push(card);
+                }
+                
+                this.updateUI();
+            }
+
+            getCardsFromElement(element) {
+                const cards = [];
+                let current = element;
+                
+                while (current && current.classList.contains('card')) {
+                    const pileId = current.parentElement.id;
+                    let card;
+                    
+                    if (pileId.startsWith('foundation')) {
+                        const index = parseInt(pileId.slice(-1));
+                        card = this.foundations[index][this.foundations[index].length - 1];
+                    } else if (pileId.startsWith('tableau')) {
+                        const index = parseInt(pileId.slice(-1));
+                        const cardIndex = Array.from(current.parentElement.children)
+                            .indexOf(current);
+                        card = this.tableau[index][cardIndex];
+                    } else if (pileId === 'waste') {
+                        card = this.waste[this.waste.length - 1];
+                    }
+                    
+                    if (card) {
+                        cards.push(card);
+                    }
+                    
+                    current = current.nextElementSibling;
+                }
+                
+                return cards;
+            }
+
+            updateUI() {
+                // 更新stock
+                const stockElement = document.getElementById('stock');
+                stockElement.innerHTML = this.stock.length > 0 ? 
+                    this.createCardElement(this.stock[this.stock.length - 1]).outerHTML : 
+                    '<div class="empty-pile">点击重置</div>';
+                
+                // 更新waste
+                const wasteElement = document.getElementById('waste');
+                wasteElement.innerHTML = this.waste.length > 0 ? 
+                    this.createCardElement(this.waste[this.waste.length - 1]).outerHTML : 
+                    '<div class="empty-pile">暂无弃牌</div>';
+                
+                // 更新foundations
+                this.foundations.forEach((foundation, i) => {
+                    const element = document.getElementById(`foundation${i}`);
+                    element.innerHTML = foundation.length > 0 ? 
+                        this.createCardElement(foundation[foundation.length - 1]).outerHTML : 
+                        `<div class="empty-pile">放置A${['♠','♥','♣','♦'][i]}</div>`;
+                });
+                
+                // 更新tableau
+                this.tableau.forEach((pile, i) => {
+                    const element = document.getElementById(`tableau${i}`);
+                    if (pile.length === 0) {
+                        element.innerHTML = '<div class="empty-pile">放置K</div>';
+                    } else {
+                        element.innerHTML = pile.map((card, index) => 
+                            this.createCardElement(card, index * 20).outerHTML
+                        ).join('');
+                    }
+                });
+            }
+
+            createCardElement(card, top = 0) {
+                const element = document.createElement('div');
+                element.className = `card ${card.color}`;
+                if (!card.faceUp) {
+                    element.classList.add('face-down');
+                }
+                element.style.top = top + 'px';
+                element.innerHTML = card.faceUp ? `${card.value}${card.suit}` : '';
+                return element;
+            }
+
+            saveState() {
+                const state = {
+                    foundations: JSON.parse(JSON.stringify(this.foundations)),
+                    tableau: JSON.parse(JSON.stringify(this.tableau)),
+                    stock: JSON.parse(JSON.stringify(this.stock)),
+                    waste: JSON.parse(JSON.stringify(this.waste))
+                };
+                this.history.push(state);
+            }
+
+            undo() {
+                if (this.history.length === 0) return;
+                
+                const previousState = this.history.pop();
+                this.foundations = previousState.foundations;
+                this.tableau = previousState.tableau;
+                this.stock = previousState.stock;
+                this.waste = previousState.waste;
+                
+                this.updateUI();
+            }
+
+            checkWin() {
+                const isComplete = this.foundations.every(foundation => 
+                    foundation.length === 13
+                );
+                
+                if (isComplete) {
+                    alert('恭喜你赢了！');
+                }
+            }
+
+            showTutorial() {
+                const tutorialSteps = [
+                    {
+                        title: "欢迎来到纸牌接龙",
+                        content: `
+                            <p>这是一个经典的单人纸牌游戏。游戏目标是将所有牌按花色从A到K排列到基础区。</p>
+                            <p>让我们一起来了解游戏的基本规则和操作方法。</p>
+                        `
+                    },
+                    {
+                        title: "游戏区域介绍",
+                        content: `
+                            <p>游戏界面分为四个主要区域：</p>
+                            <ul>
+                                <li><strong>牌堆（左上）：</strong>存放未使用的牌</li>
+                                <li><strong>弃牌区（右上）：</strong>显示从牌堆抽出的牌</li>
+                                <li><strong>基础区（中上）：</strong>最终需要将牌按花色从A到K排列的区域</li>
+                                <li><strong>工作区（下方）：</strong>主要的操作区域，用于临时放置和排列纸牌</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: "基本操作",
+                        content: `
+                            <p><strong>抽牌：</strong>点击牌堆抽取新牌到弃牌区</p>
+                            <p><strong>移动牌：</strong>拖拽任何正面朝上的牌到合适的位置</p>
+                            <p><strong>撤销：</strong>点击"撤销"按钮可以撤销上一步操作</p>
+                        `
+                    },
+                    {
+                        title: "游戏规则",
+                        content: `
+                            <p><strong>基础区规则：</strong></p>
+                            <ul>
+                                <li>只能放置相同花色的牌</li>
+                                <li>必须从A开始，按顺序向上到K</li>
+                            </ul>
+                            <p><strong>工作区规则：</strong></p>
+                            <ul>
+                                <li>空列只能放置K</li>
+                                <li>必须按红黑交替顺序从大到小排列</li>
+                                <li>可以移动整列已翻开的牌</li>
+                            </ul>
+                        `
+                    },
+                    {
+                        title: "游戏技巧",
+                        content: `
+                            <p>1. 优先处理工作区被压住的牌</p>
+                            <p>2. 尽量保持空列，方便临时放置牌组</p>
+                            <p>3. 注意观察不同花色的顺序，合理规划移动顺序</p>
+                            <p>4. 适时将牌移动到基础区，但不要过早锁定可能还需要的牌</p>
+                        `
+                    }
+                ];
+
+                const overlay = document.createElement('div');
+                overlay.className = 'tutorial-overlay';
+                
+                const modal = document.createElement('div');
+                modal.className = 'tutorial-modal';
+                
+                let currentStep = 0;
+                
+                function updateTutorialContent() {
+                    const step = tutorialSteps[currentStep];
+                    modal.innerHTML = `
+                        <h2>${step.title}</h2>
+                        ${step.content}
+                        <div class="tutorial-controls">
+                            ${currentStep > 0 ? '<button class="prev-btn">上一步</button>' : ''}
+                            ${currentStep < tutorialSteps.length - 1 ? 
+                                '<button class="next-btn">下一步</button>' : 
+                                '<button class="close-btn">开始游戏</button>'}
+                        </div>
+                    `;
+                    
+                    const prevBtn = modal.querySelector('.prev-btn');
+                    if (prevBtn) {
+                        prevBtn.addEventListener('click', () => {
+                            currentStep--;
+                            updateTutorialContent();
+                        });
+                    }
+                    
+                    const nextBtn = modal.querySelector('.next-btn');
+                    if (nextBtn) {
+                        nextBtn.addEventListener('click', () => {
+                            currentStep++;
+                            updateTutorialContent();
+                        });
+                    }
+                    
+                    const closeBtn = modal.querySelector('.close-btn');
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', () => {
+                            document.body.removeChild(overlay);
+                        });
+                    }
+                }
+                
+                updateTutorialContent();
+                overlay.appendChild(modal);
+                document.body.appendChild(overlay);
+            }
+
+            showHelp() {
+                this.showTutorial();
+            }
+        }
+
+        // 初始化游戏
+        const game = new Solitaire();
+    </script>
+</body>
+</html>
