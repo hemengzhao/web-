@@ -5,6 +5,8 @@
 
 1. 图片请求（Image Beacon）：通过创建一个Image对象，将要上报的数据作为URL参数拼接到一个1x1像素的透明图片URL中，发送一个GET请求来触发上报。
 
+2. 使用 Script 标签埋点: 
+
 2. XMLHttpRequest或Fetch API：使用XMLHttpRequest或Fetch API发送异步请求来上报数据。可以选择使用GET或POST方法，并将数据作为请求体或URL参数发送。
 
 3. Navigator.sendBeacon()：Navigator.sendBeacon()方法允许在页面卸载时异步发送数据。它通常用于在页面关闭时进行最后的数据上报，以确保数据能够成功发送。
@@ -21,15 +23,48 @@
 优点： 
     简单易用，兼容性好，可以跨域上报。
     不会阻塞页面加载和关闭。
+    无跨域限制，可以请求任意域名
+    不占用 Ajax 请求数量限制
 
 缺点： 
     只能发送GET请求，无法获取响应结果。
     不支持异步操作。
+    无法判断请求是否成功
+
 
 const data = { event: 'click', element: 'button' };
 const url = ` https://example.com/track?data= ${encodeURIComponent(JSON.stringify(data))}`;
 const img = new Image();
 img.src = url;
+
+2. 使用 Script 标签埋点
+优点：
+    1. 同样具有良好的兼容性
+    2. 可以跨域请求数据
+    3. 可以执行返回的脚本内容
+    4. 支持 JSONP 形式的数据交互
+缺点：
+    1. 同样只支持 GET 请求
+    2. 可能会执行恶意脚本，存在安全风险
+    3. 脚本加载失败可能会阻塞后续脚本执行
+    4. 需要服务端配合返回正确的 JSONP 格式
+
+
+function scriptTrack(data) {
+    const script = document.createElement('script');
+    script.src = `https://analytics.example.com/track?callback=trackCallback&data=${encodeURIComponent(JSON.stringify(data))}`;
+    document.body.appendChild(script);
+    
+    // 清理 DOM
+    script.onload = script.onerror = function() {
+        document.body.removeChild(script);
+    };
+}
+
+// 回调函数
+function trackCallback(response) {
+    console.log('Tracking response:', response);
+}
 
 2. XMLHttpRequest或Fetch API
 

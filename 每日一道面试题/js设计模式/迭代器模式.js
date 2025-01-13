@@ -27,7 +27,8 @@ Aggregate.prototype[Symbol.iterator] = function() {
 };
 
 
-// 迭代器function Iterator(aggregate) {
+// 迭代器
+function Iterator(aggregate) {
     this.aggregate = aggregate;
 }
 
