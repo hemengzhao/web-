@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>五子棋</title>
+    <style>
+        .game-container {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+        }
+        #gameCanvas {
+            border: 2px solid #333;
+            background-color: #DEB887;
+        }
+        .info {
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .current-player {
+            margin-bottom: 20px;
+        }
+        .controls button {
+            padding: 8px 16px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .black-piece {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: black;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+        .white-piece {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: white;
+            border: 1px solid #333;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="600" height="600"></canvas>
+        <div class="info">
+            <div class="current-player">
+                <h3>当前回合:</h3>
+                <div id="currentPlayer">
+                    <span class="black-piece"></span>黑棋
+                </div>
+            </div>
+            <div class="controls">
+                <button id="restartBtn">重新开始</button>
+                <button id="undoBtn">悔棋</button>
+            </div>
+            <div id="winner"></div>
+        </div>
+    </div>
+
+    <script type="module"> 
+        import { drawBoard } from './drawBoard.js';
+        let canvas, ctx 
+         
+         // 初始化游戏
+        window.onload = () => {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            drawBoard( ctx)
+        };
+    </script>
+</body>
+</html>
