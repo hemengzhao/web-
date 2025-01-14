@@ -49,7 +49,7 @@
 </head>
 <body>
     <div class="game-container">
-        <canvas id="gameCanvas" width="600" height="600"></canvas>
+        <canvas id="gameCanvas" width="800" height="800"></canvas>
         <div class="info">
             <div class="current-player">
                 <h3>当前回合:</h3>
@@ -66,14 +66,19 @@
     </div>
 
     <script type="module"> 
-        import { drawBoard } from './drawBoard.js';
-        let canvas, ctx 
-         
+        import { drawBoard, initDrawChessman } from './drawBoard.js';
+        import {Viewer} from './layer.js';
+        let canvas, ctx,viewer
+        
          // 初始化游戏
         window.onload = () => {
             canvas = document.getElementById('gameCanvas');
             ctx = canvas.getContext('2d');
-            drawBoard( ctx)
+            viewer = new Viewer(canvas) 
+            drawBoard(viewer)
+            initDrawChessman(viewer) 
+            viewer.draw()
+           
         };
     </script>
 </body>

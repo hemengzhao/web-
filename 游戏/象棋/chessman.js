@@ -55,6 +55,8 @@ export class Chessman {
     chessman // chessmanEnmu
     rule
     position
+    status // 棋子状态   0 被吃 1 正常  2 被选中 3 被将军
+    nextPositions
     constructor(type, chessman, position) {
         this.type = type
         this.position = position
@@ -68,7 +70,7 @@ export class Chessman {
      * @param {string} type - 棋子类型（'black' | 'white'）
      * @param {Object} options - 配置选项
      */
-    drawChessman(ctx, options = {}) {
+    draw(ctx, options = {}) {
         console.log("🚀 ~ Chessman ~ drawChessman ~ ctx:", ctx)
         const [x, y] = this.position
 
@@ -157,8 +159,20 @@ export class Chessman {
             height: radius * 2
         };
     }
+    nextLuozi(){}
+
     onSelect() {
         this.select = !this.select
+    }
+
+    isPointInCircle(x, y){
+        // 计算点到圆心的距离
+        const distance = Math.sqrt(
+            Math.pow(x - this.position.x, 2) + Math.pow(y - this.position.y, 2)
+        );
+
+        // 比较距离和半径
+        return distance < CHESSMAN_RADIUS;
     }
 }
 
@@ -167,6 +181,17 @@ export class Chessman {
 export class SoldierChessman extends Chessman {
     constructor(type, position) {
         super(type, 'soldier', position)
+    }
+    nextLuozi(){
+        const [x,y] = this.position
+        const forward = this.type === 'black' ? 1 : -1
+        const isAbout = this.type === 'black' ? y >= 5 : y <= 4
+        const arr = [[x, y + forward]]
+        if(isAbout){
+            arr.push([x+1, y] )
+            arr.push([x-1, y])
+        }
+        this.nextPositions = arr
     }
 }
 
@@ -216,18 +241,7 @@ export class CannonChessman extends Chessman {
 }
 
 
-
-// // 使用示例：
-// // 基本使用
-// drawChessman(ctx, 3, 3, 'black');
-
-// // 带配置的使用
-// drawChessman(ctx, 3, 3, 'white', {
-//     radius: 15,
-//     shadowBlur: 5,
-//     isLastMove: true,
-//     isHovered: true
-// });
+ 
 
 // 动画效果
 function animateChessman(x, y, type) {
@@ -245,4 +259,16 @@ function animateChessman(x, y, type) {
     };
 
     animate();
+}
+
+
+export const chessmanObjClass = {
+    soldier: SoldierChessman,
+    vehicle: VehicleChessman,
+    horse: HorseChessman,
+    mutually: MutuallyChessman,
+    shi: ShiChessman,
+    take: TakeChessman,
+    cannon: CannonChessman
+
 }

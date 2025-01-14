@@ -1,133 +1,47 @@
-import { BOARD_MARGIN, CELL_SIZE, BOARD_WIDTH, BOARD_HEIGHT, AUXILIARY_LABEL, BLACK_CHESSMAN_POSITION, RED_CHESSMAN_POSITION } from './const.js';
-import {SoldierChessman} from './chessman.js'
-export  function  drawBoard(ctx){
+import { BOARD_MARGIN, CELL_SIZE,LINE, BOARD_WIDTH, BOARD_HEIGHT, AUXILIARY_LABEL, BLACK_CHESSMAN_POSITION, RED_CHESSMAN_POSITION } from './const.js';
+import {chessmanObjClass} from './chessman.js'
+
+
+class Line { 
+    constructor(x1, y1, x2, y2) {
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x2;
+        this.y2 = y2;
+    }
+    draw(ctx) {
+        ctx.beginPath();
+        ctx.moveTo(this.x1, this.y1);
+        ctx.lineTo(this.x2, this.y2);
+        ctx.stroke();
+    }
+}
+
+// 绘制棋盘
+export  function  drawBoard(viewer){
+    const ctx = viewer.ctx
     ctx.strokeStyle = '#000';
-    ctx.lineWidth = 2;
- 
-    // 绘制外框
-    ctx.beginPath();
-    ctx.rect(
-        BOARD_MARGIN, 
-        BOARD_MARGIN, 
-        CELL_SIZE * BOARD_WIDTH, 
-        CELL_SIZE * BOARD_HEIGHT
-    );
-    ctx.stroke();
-    
-    // 绘制横线
-    for (let i = 1; i < BOARD_HEIGHT; i++) {
-        ctx.beginPath();
-        ctx.moveTo(BOARD_MARGIN, BOARD_MARGIN + i * CELL_SIZE);
-        ctx.lineTo(BOARD_MARGIN + BOARD_WIDTH * CELL_SIZE, BOARD_MARGIN + i * CELL_SIZE);
-        ctx.stroke();
-    }
-     
-    // 绘制竖线
-    for (let i = 1; i < BOARD_WIDTH; i++) {
-        ctx.beginPath();
-        ctx.moveTo(BOARD_MARGIN + i * CELL_SIZE, BOARD_MARGIN);
-        ctx.lineTo(BOARD_MARGIN + i * CELL_SIZE, BOARD_MARGIN + BOARD_HEIGHT * CELL_SIZE);
-        ctx.stroke();
-    }
+    ctx.lineWidth = 2; 
 
-    ctx.clearRect(
-        BOARD_MARGIN + 1,
-         4 * CELL_SIZE +  BOARD_MARGIN + 1, 
-         CELL_SIZE * BOARD_WIDTH - 2, 
-         CELL_SIZE -2,
-    );
-   
-    // 绘制楚河汉界
-    ctx.font = '30px Arial';
-    ctx.fillStyle = '#000';
-    ctx.fillText('楚 河', BOARD_MARGIN + CELL_SIZE * 1.5, BOARD_MARGIN + CELL_SIZE * 4.7);
-    ctx.fillText('汉 界', BOARD_MARGIN + CELL_SIZE * 4.5, BOARD_MARGIN + CELL_SIZE * 4.7);
-    
-    // 绘制斜线（九宫格）
-    // 上方九宫格
-    ctx.beginPath();
-    ctx.moveTo(BOARD_MARGIN + 3 * CELL_SIZE, BOARD_MARGIN);
-    ctx.lineTo(BOARD_MARGIN + 5 * CELL_SIZE, BOARD_MARGIN + 2 * CELL_SIZE);
-    ctx.stroke();
-    
-    ctx.beginPath();
-    ctx.moveTo(BOARD_MARGIN + 5 * CELL_SIZE, BOARD_MARGIN);
-    ctx.lineTo(BOARD_MARGIN + 3 * CELL_SIZE, BOARD_MARGIN + 2 * CELL_SIZE);
-    ctx.stroke();
-    
-    // 下方九宫格
-    ctx.beginPath();
-    ctx.moveTo(BOARD_MARGIN + 3 * CELL_SIZE, BOARD_MARGIN + 7 * CELL_SIZE);
-    ctx.lineTo(BOARD_MARGIN + 5 * CELL_SIZE, BOARD_MARGIN + 9 * CELL_SIZE);
-    ctx.stroke();
-    
-    ctx.beginPath();
-    ctx.moveTo(BOARD_MARGIN + 5 * CELL_SIZE, BOARD_MARGIN + 7 * CELL_SIZE);
-    ctx.lineTo(BOARD_MARGIN + 3 * CELL_SIZE, BOARD_MARGIN + 9 * CELL_SIZE);
-    ctx.stroke();
+    // 绘制棋盘线
+    LINE.forEach(item => {
+        const [x1, y1, x2, y2] = item;
+        const line = new Line(BOARD_MARGIN + x1 * CELL_SIZE, BOARD_MARGIN + y1 * CELL_SIZE, BOARD_MARGIN + x2 * CELL_SIZE, BOARD_MARGIN + y2 * CELL_SIZE);
+        // line.draw(ctx);
+        viewer.boardLayer.add(line);
+    }) 
 
-
-    // 绘制兵炮辅助标
-
+    // 绘制兵炮辅助标 
     AUXILIARY_LABEL.forEach((item) => {  
         const [x, y] = item 
-        drawAuxiliary(ctx, x, y)
- 
-    })
-
-    initDrawChessman(ctx)
-
+        drawAuxiliary(viewer, x, y) 
+    })  
  }
 
 
- 
-function drawAuxiliary(ctx, x, y){
-    // // 右上
-    // ctx.beginPath();
-    // ctx.moveTo(BOARD_MARGIN + x * CELL_SIZE + 5, BOARD_MARGIN + y * CELL_SIZE - 15);
-    // ctx.lineTo(BOARD_MARGIN + x * CELL_SIZE + 5 , BOARD_MARGIN + y * CELL_SIZE - 5);
-    // ctx.stroke();  
-
-    // ctx.beginPath();
-    // ctx.moveTo(BOARD_MARGIN + x * CELL_SIZE + 5 , BOARD_MARGIN + y * CELL_SIZE - 5);
-    // ctx.lineTo(BOARD_MARGIN + x * CELL_SIZE + 15 , BOARD_MARGIN + y * CELL_SIZE - 5);
-    // ctx.stroke();
-
-
-    // // 右下
-    // ctx.beginPath();
-    // ctx.moveTo(BOARD_MARGIN + x * CELL_SIZE + 5, BOARD_MARGIN + y * CELL_SIZE + 15);
-    // ctx.lineTo(BOARD_MARGIN + x * CELL_SIZE + 5 , BOARD_MARGIN + y * CELL_SIZE + 5);
-    // ctx.stroke(); 
-
-    // ctx.beginPath();
-    // ctx.moveTo(BOARD_MARGIN + x * CELL_SIZE + 5 , BOARD_MARGIN + y * CELL_SIZE + 5);
-    // ctx.lineTo(BOARD_MARGIN + x * CELL_SIZE + 15 , BOARD_MARGIN + y * CELL_SIZE + 5);
-    // ctx.stroke();
-
-    // // 左上
-    // ctx.beginPath();
-    // ctx.moveTo(BOARD_MARGIN + x * CELL_SIZE - 5, BOARD_MARGIN + y * CELL_SIZE - 15);
-    // ctx.lineTo(BOARD_MARGIN + x * CELL_SIZE - 5 , BOARD_MARGIN + y * CELL_SIZE - 5);
-    // ctx.stroke(); 
-
-    // ctx.beginPath();
-    // ctx.moveTo(BOARD_MARGIN + x * CELL_SIZE - 5 , BOARD_MARGIN + y * CELL_SIZE - 5);
-    // ctx.lineTo(BOARD_MARGIN + x * CELL_SIZE - 15 , BOARD_MARGIN + y * CELL_SIZE - 5);
-    // ctx.stroke();
-
-
-    // // 左下
-    // ctx.beginPath();
-    // ctx.moveTo(BOARD_MARGIN + x * CELL_SIZE - 5, BOARD_MARGIN + y * CELL_SIZE + 15);
-    // ctx.lineTo(BOARD_MARGIN + x * CELL_SIZE - 5 , BOARD_MARGIN + y * CELL_SIZE + 5);
-    // ctx.stroke(); 
-
-    // ctx.beginPath();
-    // ctx.moveTo(BOARD_MARGIN + x * CELL_SIZE - 5 , BOARD_MARGIN + y * CELL_SIZE + 5);
-    // ctx.lineTo(BOARD_MARGIN + x * CELL_SIZE - 15 , BOARD_MARGIN + y * CELL_SIZE + 5);
-    // ctx.stroke();
-
+//  绘制辅助标
+function drawAuxiliary(viewer, x, y){ 
+    const ctx = viewer.ctx
 
     // 保存当前状态
     ctx.save();
@@ -160,26 +74,16 @@ function drawAuxiliary(ctx, x, y){
     corners.forEach(corner => {
         // 超出棋盘不绘制
         if(baseX + corner[0][0] < BOARD_MARGIN || baseX + corner[1][0] > BOARD_MARGIN + 8 * CELL_SIZE) return
-        
-        // 绘制垂直线
-        ctx.moveTo(
-            baseX + corner[0][0],
-            baseY + corner[0][1]
-        );
-        ctx.lineTo(
-            baseX + corner[1][0],
-            baseY + corner[1][1]
-        );
-        
+
+         // 绘制垂直线
+        const verticalLine = new Line( baseX + corner[0][0], baseY + corner[0][1], baseX + corner[1][0],  baseY + corner[1][1]);
+        // verticalLine.draw(ctx);
+        viewer.boardLayer.add(verticalLine);
+
         // 绘制水平线
-        ctx.moveTo(
-            baseX + corner[1][0],
-            baseY + corner[1][1]
-        );
-        ctx.lineTo(
-            baseX + corner[2][0],
-            baseY + corner[2][1]
-        );
+        const horizontalLine = new Line(baseX + corner[1][0],  baseY + corner[1][1], baseX + corner[2][0], baseY + corner[2][1]);
+        // horizontalLine.draw(ctx); 
+        viewer.boardLayer.add(horizontalLine);
     });
     ctx.stroke();
 
@@ -188,15 +92,21 @@ function drawAuxiliary(ctx, x, y){
 
 }   
 
-function initDrawChessman(ctx){
-    
-    BLACK_CHESSMAN_POSITION.soldier.forEach(item => {
-        const chessman = new SoldierChessman('black', item)
-        chessman.drawChessman(ctx)
-    })
+// 初始化棋子
+export function initDrawChessman(viewer){
+    const ctx = viewer.ctx
+    for(const item in BLACK_CHESSMAN_POSITION){ 
+        BLACK_CHESSMAN_POSITION[item].forEach(pos => {
+            const chessman = new chessmanObjClass[item]('black', pos)
+            viewer.chessmanLayer.add(chessman)
+        })
+    }
 
-    RED_CHESSMAN_POSITION.soldier.forEach(item => {
-        const chessman = new SoldierChessman('red', item)
-        chessman.drawChessman(ctx)
-    })
+    for(const item in RED_CHESSMAN_POSITION){ 
+        RED_CHESSMAN_POSITION[item].forEach(pos => {
+            const chessman = new chessmanObjClass[item]('red', pos)
+            viewer.chessmanLayer.add(chessman)
+        })
+    }
+    
 }
