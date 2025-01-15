@@ -68,17 +68,59 @@
     <script type="module"> 
         import { drawBoard, initDrawChessman } from './drawBoard.js';
         import {Viewer} from './layer.js';
+        
         let canvas, ctx,viewer
         
-         // 初始化游戏
+        // 页面 > ChessGame > Viewer > Layer > 棋盘 | 棋子 
+
+        class ChessGame {
+            undoArr = [] // 撤销
+            redoArr = [] // 恢复
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d'); 
+                this.init();
+            }
+
+            // 初始化
+            init() {
+                this.viewer = new Viewer(this.canvas); 
+                this.startGameLoop();
+            }
+            
+            // 开始游戏循环
+            startGameLoop() {
+                
+            }
+
+            // 更新
+            update() {
+                 
+            }
+
+            // 渲染 
+            render() {
+               
+            }
+            
+            // 撤销
+            onUndo() {
+
+            }
+
+            // 恢复
+            onRedo() {
+
+            }
+
+            // 清空画布
+            clearCanvas() {
+                
+            }
+        }
+
         window.onload = () => {
-            canvas = document.getElementById('gameCanvas');
-            ctx = canvas.getContext('2d');
-            viewer = new Viewer(canvas) 
-            drawBoard(viewer)
-            initDrawChessman(viewer) 
-            viewer.draw()
-           
+            new ChessGame();
         };
     </script>
 </body>

@@ -1,21 +1,6 @@
 import { BOARD_MARGIN, CELL_SIZE,LINE, BOARD_WIDTH, BOARD_HEIGHT, AUXILIARY_LABEL, BLACK_CHESSMAN_POSITION, RED_CHESSMAN_POSITION } from './const.js';
 import {chessmanObjClass} from './chessman.js'
-
-
-export class Line { 
-    constructor(x1, y1, x2, y2) {
-        this.x1 = x1;
-        this.y1 = y1;
-        this.x2 = x2;
-        this.y2 = y2;
-    }
-    draw(ctx) {
-        ctx.beginPath();
-        ctx.moveTo(this.x1, this.y1);
-        ctx.lineTo(this.x2, this.y2);
-        ctx.stroke();
-    }
-}
+ 
 
 // 绘制棋盘
 export  function  drawBoard(viewer){
@@ -57,8 +42,7 @@ function drawAuxiliary(viewer, x, y){
     };
 
     // 定义四个角的坐标偏移
-    const corners = [
-        // [startX, startY, endX, endY] 相对于基准点的偏移
+    const corners = [ 
         // 右上角
         [[size.short, -size.long], [size.short, -size.short], [size.long, -size.short]],
         // 右下角
@@ -77,13 +61,11 @@ function drawAuxiliary(viewer, x, y){
 
          // 绘制垂直线
         const verticalLine = new Line( baseX + corner[0][0], baseY + corner[0][1], baseX + corner[1][0],  baseY + corner[1][1]);
-        // verticalLine.draw(ctx);
         viewer.boardLayer.add(verticalLine);
 
         // 绘制水平线
         const horizontalLine = new Line(baseX + corner[1][0],  baseY + corner[1][1], baseX + corner[2][0], baseY + corner[2][1]);
-        // horizontalLine.draw(ctx); 
-        viewer.boardLayer.add(horizontalLine);
+         viewer.boardLayer.add(horizontalLine);
     });
     ctx.stroke();
 
@@ -93,8 +75,7 @@ function drawAuxiliary(viewer, x, y){
 }   
 
 // 初始化棋子
-export function initDrawChessman(viewer){
-    const ctx = viewer.ctx
+export function initDrawChessman(viewer){ 
     for(const item in BLACK_CHESSMAN_POSITION){ 
         BLACK_CHESSMAN_POSITION[item].forEach(pos => {
             const chessman = new chessmanObjClass[item]('black', pos)

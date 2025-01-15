@@ -40,3 +40,51 @@ export const RED_CHESSMAN_POSITION = {
     cannon: [[1,7], [7, 7]]
 }
 export const AUXILIARY_LABEL = [...BLACK_CHESSMAN_POSITION.soldier, ...BLACK_CHESSMAN_POSITION.cannon, ...RED_CHESSMAN_POSITION.soldier, ...RED_CHESSMAN_POSITION.cannon]
+
+export const blackChessman = {
+    soldier: {
+        name: '卒',
+        rule: [],
+    },
+    vehicle: {
+        name: '车'
+    },
+    horse: {
+        name: '马'
+    },
+    mutually: {
+        name: '象'
+    },
+    shi: {
+        name: '士'
+    },
+    take: {
+        name: '将'
+    },
+    cannon: {
+        name: '炮'
+    },
+}
+export const redChessman = {
+    soldier: {
+        name: '兵',
+    },
+    vehicle: {
+        name: '车'
+    },
+    horse: {
+        name: '马'
+    },
+    mutually: {
+        name: '相'
+    },
+    shi: {
+        name: '士'
+    },
+    take: {
+        name: '帅'
+    },
+    cannon: {
+        name: '炮'
+    },
+}

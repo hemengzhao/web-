@@ -1,54 +1,7 @@
-import { BOARD_MARGIN, CELL_SIZE, CHESSMAN_RADIUS, BOARD_HEIGHT, AUXILIARY_LABEL, BLACK_CHESSMAN_POSITION } from './const.js';
-
-const blackChessman = {
-    soldier: {
-        name: '卒',
-        rule: [],
-    },
-    vehicle: {
-        name: '车'
-    },
-    horse: {
-        name: '马'
-    },
-    mutually: {
-        name: '象'
-    },
-    shi: {
-        name: '士'
-    },
-    take: {
-        name: '将'
-    },
-    cannon: {
-        name: '炮'
-    },
-}
-const redChessman = {
-    soldier: {
-        name: '兵',
-    },
-    vehicle: {
-        name: '车'
-    },
-    horse: {
-        name: '马'
-    },
-    mutually: {
-        name: '相'
-    },
-    shi: {
-        name: '士'
-    },
-    take: {
-        name: '帅'
-    },
-    cannon: {
-        name: '炮'
-    },
-}
+import { BOARD_MARGIN, CELL_SIZE, CHESSMAN_RADIUS,  blackChessman, redChessman } from './const.js';
 
 
+// 棋子基类
 export class Chessman {
     type // black  黑  red 红 
     chessman // chessmanEnmu
@@ -211,10 +164,9 @@ export class Chessman {
         // 比较距离和半径
         return distance < CHESSMAN_RADIUS;
     }
-}
+} 
 
-
-
+// 兵
 export class SoldierChessman extends Chessman {
     constructor(type, position) {
         super(type, 'soldier', position)
@@ -232,6 +184,7 @@ export class SoldierChessman extends Chessman {
     }
 }
 
+// 车
 export class VehicleChessman extends Chessman {
     constructor(type, position) {
         super(type, 'vehicle', position)
@@ -261,7 +214,7 @@ export class VehicleChessman extends Chessman {
     }
 }
 
-
+// 马
 export class HorseChessman extends Chessman {
     constructor(type, position) {
         super(type, 'horse', position)
@@ -288,10 +241,9 @@ export class HorseChessman extends Chessman {
             return true
          })
     }
-}
+} 
 
-
-
+// 象
 export class MutuallyChessman extends Chessman {
     constructor(type, position) {
         super(type, 'mutually', position)
@@ -312,10 +264,9 @@ export class MutuallyChessman extends Chessman {
         this.nextPositions = arr
         
     }
-}
+} 
 
-
-
+// 士
 export class ShiChessman extends Chessman {
     constructor(type, position) {
         super(type, 'shi', position)
@@ -333,10 +284,9 @@ export class ShiChessman extends Chessman {
         }
         this.nextPositions = arr
     }
-}
+} 
 
-
-
+// 将
 export class TakeChessman extends Chessman {
     constructor(type, position) {
         super(type, 'take', position)
@@ -355,9 +305,8 @@ export class TakeChessman extends Chessman {
         this.nextPositions = arr
     }
 }
-
-
-
+ 
+// 炮
 export class CannonChessman extends Chessman {
     constructor(type, position) {
         super(type, 'cannon', position)
@@ -387,55 +336,6 @@ export class CannonChessman extends Chessman {
         }
         this.nextPositions = arr
     }
-}
-
-export class FallingChessman  {
-    coordinate
-    position 
-    constructor(position) { 
-        this.coordinate = [BOARD_MARGIN + position[0] * CELL_SIZE, BOARD_MARGIN + position[1] * CELL_SIZE]
-        this.position = position;
-    }
-    draw(ctx) { 
-        const [x, y] = this.position 
-        // 计算中心点坐标
-        const centerX = BOARD_MARGIN + x * CELL_SIZE;
-        const centerY = BOARD_MARGIN + y * CELL_SIZE;
-        ctx.save(); 
-        ctx.fillStyle = 'green';
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 13, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-    }
-
-    isPointInCircle(x, y){  
-        // 计算点到圆心的距离
-        const distance = Math.sqrt(
-            Math.pow(x - this.coordinate[0], 2) + Math.pow(y - this.coordinate[1], 2)
-        ); 
-        // 比较距离和半径
-        return distance < CHESSMAN_RADIUS;
-    }
-}
- 
-
-// 动画效果
-function animateChessman(x, y, type) {
-    let progress = 0;
-    const animate = () => {
-        if (progress >= 1) return;
-
-        progress += 0.1;
-        drawChessman(ctx, x, y, type, {
-            radius: 13 * progress,
-            shadowBlur: 3 * progress
-        });
-
-        requestAnimationFrame(animate);
-    };
-
-    animate();
 }
 
 
