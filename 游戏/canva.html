@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清除中间层不影响底层示例</title>
+</head>
+<body>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // 绘制背景层
+        function drawBackground() {
+            ctx.fillStyle = 'lightblue';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // 绘制中间层
+        function drawMiddleLayer() {
+            ctx.fillStyle = 'yellow';
+            ctx.fillRect(100, 100, 200, 200);
+        }
+
+        // 绘制前景层
+        function drawForeground() {
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(400, 300, 50, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // 清除画布上的指定区域
+        function clearLayer(x, y, width, height) {
+            // 保存底层状态
+            ctx.save();
+            ctx.clearRect(x, y, width, height);
+            ctx.restore(); // 恢复底层状态
+        }
+
+        // 绘制所有层
+        function drawAllLayers() {
+            drawBackground();
+            drawMiddleLayer();
+            drawForeground();
+        }
+
+        // 示例：绘制所有层
+        drawAllLayers();
+
+        // 示例：清除中间层并重新绘制
+        setTimeout(() => {
+            clearLayer(100, 100, 200, 200); // 清除中间层
+            // drawMiddleLayer(); // 重新绘制中间层
+        }, 2000);
+    </script>
+</body>
+</html>

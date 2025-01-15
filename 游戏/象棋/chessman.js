@@ -50,18 +50,50 @@ const redChessman = {
 
 
 export class Chessman {
-    type // black  黑  red 红
-    select // 是否选择
+    type // black  黑  red 红 
     chessman // chessmanEnmu
+    chessmanType
     rule
-    position
+    position // 棋子位置
+    coordinate // 棋子坐标
     status // 棋子状态   0 被吃 1 正常  2 被选中 3 被将军
     nextPositions
-    constructor(type, chessman, position) {
+    constructor(type, chessmanType, position) {
+        this.chessmanType = chessmanType
         this.type = type
         this.position = position
-        this.chessman = type === 'black' ? blackChessman[chessman].name : redChessman[chessman].name
+        this.coordinate = [BOARD_MARGIN + position[0] * CELL_SIZE, BOARD_MARGIN + position[1] * CELL_SIZE]
+        this.chessman = type === 'black' ? blackChessman[chessmanType].name : redChessman[chessmanType].name
     }
+        
+    get selectedBorder(){
+        const [x, y] = this.position
+        // 计算中心点坐标
+        const centerX = BOARD_MARGIN + x * CELL_SIZE;
+        const centerY = BOARD_MARGIN + y * CELL_SIZE; 
+        const BASS = CHESSMAN_RADIUS + 2
+        const leftTop = [centerX  - BASS, centerY - BASS]
+        const rightTop = [centerX +  BASS, centerY  - BASS]
+        const rightBottom = [centerX  + BASS, centerY + BASS]
+        const leftBottom = [centerX  - BASS, centerY + BASS]
+
+        // 四个角标框 恭8条线段
+
+        return  [
+            [...leftTop, centerX  - BASS / 2, centerY - BASS],
+            [...leftTop, centerX  - BASS, centerY - BASS / 2],
+
+            [...rightTop, centerX  + BASS / 2, centerY - BASS],
+            [...rightTop, centerX  + BASS, centerY - BASS / 2],
+
+            [...rightBottom, centerX  + BASS / 2, centerY + BASS],
+            [...rightBottom, centerX  + BASS, centerY + BASS / 2],
+
+            [...leftBottom, centerX  - BASS / 2, centerY + BASS],
+            [...leftBottom, centerX  - BASS, centerY + BASS / 2], 
+        ]
+    }
+
     /**
      * 绘制棋子
      * @param {CanvasRenderingContext2D} ctx - Canvas上下文
@@ -70,8 +102,7 @@ export class Chessman {
      * @param {string} type - 棋子类型（'black' | 'white'）
      * @param {Object} options - 配置选项
      */
-    draw(ctx, options = {}) {
-        console.log("🚀 ~ Chessman ~ drawChessman ~ ctx:", ctx)
+    draw(ctx, options = {}) { 
         const [x, y] = this.position
 
         // 默认配置
@@ -150,7 +181,6 @@ export class Chessman {
             // 恢复状态
             ctx.restore();
         }
-
         // 返回棋子的碰撞检测区域
         return {
             x: centerX - radius,
@@ -159,18 +189,25 @@ export class Chessman {
             height: radius * 2
         };
     }
-    nextLuozi(){}
-
-    onSelect() {
-        this.select = !this.select
+    setPosition(position){
+        console.log("🚀 ~ Chessman ~ setsetPosition ~ position:", position)
+        const [x, y] = position
+        this.position = position
+        this.coordinate = [BOARD_MARGIN + x * CELL_SIZE, BOARD_MARGIN + y * CELL_SIZE]
     }
 
-    isPointInCircle(x, y){
+    nextLuozi(){}
+
+    _selected(viewer) {
+        this.status = 2;
+        this.nextLuozi(viewer)
+    }
+
+    isPointInCircle(x, y){  
         // 计算点到圆心的距离
         const distance = Math.sqrt(
-            Math.pow(x - this.position.x, 2) + Math.pow(y - this.position.y, 2)
-        );
-
+            Math.pow(x - this.coordinate[0], 2) + Math.pow(y - this.coordinate[1], 2)
+        ); 
         // 比较距离和半径
         return distance < CHESSMAN_RADIUS;
     }
@@ -199,12 +236,57 @@ export class VehicleChessman extends Chessman {
     constructor(type, position) {
         super(type, 'vehicle', position)
     }
+
+    nextLuozi(viewer){
+        const [x,y] = this.position
+        const arr = []
+        const dir = [[0,1], [0,-1], [1,0], [-1,0]]
+        for(let [dx, dy] of dir){
+            let nx = x + dx
+            let ny = y + dy
+            while(nx >= 0 && nx < 9 && ny >= 0 && ny < 10){
+                const obj = viewer.chessmanLayer.seachByPosition(nx, ny) 
+                if(obj && obj.type === this.type){
+                    break
+                }
+                arr.push([nx, ny])
+                if(obj){
+                    break
+                } 
+                nx += dx
+                ny += dy
+            }
+        }
+        this.nextPositions = arr
+    }
 }
 
 
 export class HorseChessman extends Chessman {
     constructor(type, position) {
         super(type, 'horse', position)
+    }
+    nextLuozi(viewer){
+        const [x,y] = this.position
+        const arr = [] 
+        const dir = [[0,1], [0,-1], [1,0], [-1,0]]
+        for(let [dx, dy] of dir){
+            const obj = viewer.chessmanLayer.seachByPosition(dx + x, dy + y) 
+            if(obj) continue
+            if(dx === 0){
+                arr.push([x + 1, y + 2 * dy])
+                arr.push([x - 1, y + 2* dy]) 
+            } else {
+                arr.push([x + 2 * dx, y + 1])
+                arr.push([x + 2 * dx, y - 1])
+            } 
+        }
+         this.nextPositions = arr.filter(([x, y]) => {
+            if(x < 0 || x > 8 || y < 0 || y > 9) return false
+            const obj = viewer.chessmanLayer.seachByPosition(x, y) 
+            if(obj && obj.type === this.type) return false
+            return true
+         })
     }
 }
 
@@ -214,6 +296,22 @@ export class MutuallyChessman extends Chessman {
     constructor(type, position) {
         super(type, 'mutually', position)
     }
+    nextLuozi(viewer){
+        const [x,y] = this.position
+        const arr = [] 
+        const dir = [[1,1], [1,-1], [-1,1], [-1,-1]]
+        const miny = this.type === 'red' ? 5 : 0
+        const maxy = this.type === 'red' ? 9 : 4
+        for(let [dx, dy] of dir){
+            const obj = viewer.chessmanLayer.seachByPosition(dx + x, dy + y)  
+            if(obj || x + dx < 0 || x + dx > 8 || y + dy < miny || y + dy > maxy) continue 
+            const obj2 = viewer.chessmanLayer.seachByPosition(x + dx * 2, y + dy* 2)
+            if(obj2) continue
+            arr.push([x + dx * 2, y + dy* 2]) 
+        } 
+        this.nextPositions = arr
+        
+    }
 }
 
 
@@ -221,6 +319,19 @@ export class MutuallyChessman extends Chessman {
 export class ShiChessman extends Chessman {
     constructor(type, position) {
         super(type, 'shi', position)
+    }
+    nextLuozi(viewer){
+        const [x,y] = this.position
+        const arr = [] 
+        const dir = [[1,1], [1,-1], [-1,1], [-1,-1]]
+        const miny = this.type === 'red' ? 7 : 0
+        const maxy = this.type === 'red' ? 9 : 2
+        for(let [dx, dy] of dir){
+            const obj = viewer.chessmanLayer.seachByPosition(dx + x, dy + y)
+            if(obj || x + dx < 3 || x + dx > 5 || y + dy < miny || y + dy > maxy) continue
+            arr.push([x + dx, y + dy])
+        }
+        this.nextPositions = arr
     }
 }
 
@@ -230,6 +341,19 @@ export class TakeChessman extends Chessman {
     constructor(type, position) {
         super(type, 'take', position)
     }
+    nextLuozi(viewer){
+        const [x,y] = this.position
+        const arr = [] 
+        const dir = [[1,0], [-1,0], [0,1], [0,-1]]
+        const miny = this.type === 'red' ? 7 : 0
+        const maxy = this.type === 'red' ? 9 : 2
+        for(let [dx, dy] of dir){
+            const obj = viewer.chessmanLayer.seachByPosition(dx + x, dy + y)
+            if(obj && obj.type === this.type || x + dx < 3 || x + dx > 5 || y + dy < miny || y + dy > maxy) continue
+            arr.push([x + dx, y + dy])
+        }
+        this.nextPositions = arr
+    }
 }
 
 
@@ -238,9 +362,62 @@ export class CannonChessman extends Chessman {
     constructor(type, position) {
         super(type, 'cannon', position)
     }
+    nextLuozi(viewer){
+        const [x,y] = this.position
+        const arr = [] 
+        const dir = [[1,0], [-1,0], [0,1], [0,-1]]
+        for(let [dx, dy] of dir){
+            let partition = false
+            let nx = x + dx
+            let ny = y + dy
+            while(true){
+                if(nx < 0 || nx > 8 || ny < 0 || ny > 9) break
+                const obj = viewer.chessmanLayer.seachByPosition(nx, ny)
+                if(partition){
+                    if(obj && obj.type !== this.type) arr.push([nx, ny])
+                    if(obj) break
+                } else if(!obj){ 
+                    arr.push([nx, ny]) 
+                } else {
+                    partition = true
+                }
+                nx += dx
+                ny += dy
+            }
+        }
+        this.nextPositions = arr
+    }
 }
 
+export class FallingChessman  {
+    coordinate
+    position 
+    constructor(position) { 
+        this.coordinate = [BOARD_MARGIN + position[0] * CELL_SIZE, BOARD_MARGIN + position[1] * CELL_SIZE]
+        this.position = position;
+    }
+    draw(ctx) { 
+        const [x, y] = this.position 
+        // 计算中心点坐标
+        const centerX = BOARD_MARGIN + x * CELL_SIZE;
+        const centerY = BOARD_MARGIN + y * CELL_SIZE;
+        ctx.save(); 
+        ctx.fillStyle = 'green';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 13, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
 
+    isPointInCircle(x, y){  
+        // 计算点到圆心的距离
+        const distance = Math.sqrt(
+            Math.pow(x - this.coordinate[0], 2) + Math.pow(y - this.coordinate[1], 2)
+        ); 
+        // 比较距离和半径
+        return distance < CHESSMAN_RADIUS;
+    }
+}
  
 
 // 动画效果
@@ -269,6 +446,5 @@ export const chessmanObjClass = {
     mutually: MutuallyChessman,
     shi: ShiChessman,
     take: TakeChessman,
-    cannon: CannonChessman
-
+    cannon: CannonChessman 
 }
