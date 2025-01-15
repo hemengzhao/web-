@@ -1,6 +1,6 @@
 import { BOARD_MARGIN, CELL_SIZE,LINE, BOARD_WIDTH, BOARD_HEIGHT, AUXILIARY_LABEL, BLACK_CHESSMAN_POSITION, RED_CHESSMAN_POSITION } from './const.js';
 import {chessmanObjClass} from './chessman.js'
- 
+import { Line} from './board.js' 
 
 // 绘制棋盘
 export  function  drawBoard(viewer){

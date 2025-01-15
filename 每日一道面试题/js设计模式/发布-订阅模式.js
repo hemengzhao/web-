@@ -51,7 +51,7 @@ class EventEmitter {
 }
 
 
-const eventEmitter = new EventEmitter() 
+export const eventEmitter = new EventEmitter() 
 
 eventEmitter.on('name', (e) => {
     console.log("🚀 ~ eventEmitter.on ~ e:", e)

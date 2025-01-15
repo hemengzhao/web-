@@ -1,3 +1,4 @@
+import { BOARD_MARGIN, CELL_SIZE, CHESSMAN_RADIUS} from './const.js';
 
 // 线段
 export class Line { 
@@ -46,3 +47,13 @@ export class FallingChessman  {
         return distance < CHESSMAN_RADIUS;
     }
 } 
+
+
+
+export class StepData { 
+    constructor(chessman, form, eat){
+        this.chessman = chessman
+        this.form = form 
+        this.eat = eat
+    }
+}

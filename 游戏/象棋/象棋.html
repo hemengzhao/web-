@@ -67,6 +67,7 @@
 
     <script type="module"> 
         import { drawBoard, initDrawChessman } from './drawBoard.js';
+        import {eventEmitter} from '../../每日一道面试题/js设计模式/发布-订阅模式.js'
         import {Viewer} from './layer.js';
         
         let canvas, ctx,viewer
@@ -80,11 +81,16 @@
                 this.canvas = document.getElementById('gameCanvas');
                 this.ctx = this.canvas.getContext('2d'); 
                 this.init();
+
+                eventEmitter.on('updataUndo', (data) => {
+                     this.undoArr.push(data)
+                })
             }
 
             // 初始化
             init() {
                 this.viewer = new Viewer(this.canvas); 
+                this.viewer.draw()
                 this.startGameLoop();
             }
             

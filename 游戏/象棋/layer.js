@@ -1,7 +1,5 @@
-import {FallingChessman} from './chessman.js'
-import {Line} from './drawBoard.js'
-
-
+import {FallingChessman, Line, StepData} from './board.js' 
+import {drawBoard, initDrawChessman} from './drawBoard.js'
 export class Viewer { 
     allLayers // 所有图层
     boardLayer  // 象棋棋盘图层
@@ -19,19 +17,38 @@ export class Viewer {
         this.allLayers = []
         this.canvas = canvas
         this.ctx = canvas.getContext('2d')
+
         this.boardLayer = new Layer('board', this)
         this.chessmanLayer = new Layer('chessman', this)
         this.previewLayer = new Layer('preview', this)
+
         this.allLayers.push(this.boardLayer)
         this.allLayers.push(this.chessmanLayer)
-        this.allLayers.push(this.previewLayer)
+        this.allLayers.push(this.previewLayer) 
+
+        this.initLayer()
 
         canvas.addEventListener('mouseenter',this.onMouseenter.bind(this), false)   // 移入
         canvas.addEventListener('mouseleave',this.onMouseleave, false)   // 移出
         canvas.addEventListener('mousemove',this.onMousemove, false)   // 移动
-        canvas.addEventListener('click',this.onClick.bind(this), false)   // 点击
-
+        canvas.addEventListener('click',this.onClick.bind(this), false)   // 点击 
     }
+
+
+    initLayer(){
+        this.estimateEatChessman = []
+        this.victory = false
+        this.currentType = 'black'
+        this.isGeneral = false
+        this.needRedraw = true
+        this.allLayers.forEach(item => {
+            item.removeAll()
+        })
+
+        drawBoard(this)
+        initDrawChessman(this) 
+    }
+
     onMouseenter(e){
         e.preventDefault()
     }
@@ -63,12 +80,16 @@ export class Viewer {
             return obj.isPointInCircle?.(x, y)
         })
         if(previewObj){ 
-            this.eatChessman(previewObj.position[0], previewObj.position[1]) 
+            const eatChessman = this.eatChessman(previewObj.position[0], previewObj.position[1]) 
             this.previewLayer.removeAll()
+           const data= new StepData(this.currentChessman, [...this.currentChessman.position], eatChessman)
+
             this.currentChessman.setPosition(previewObj.position) // 将棋子移动到预览位置
             this.currentChessman = null
             this.currentType = this.currentType === 'red' ? 'black' : 'red'
             this.estimateEatChessman = []
+
+           
             this.isGeneral = false
             this.refresh()
         }
@@ -113,6 +134,7 @@ export class Viewer {
                 this.victory = true
             }
         }
+        return obj
     }
     layerDraw(layer) {
         layer.draw()
