@@ -152,7 +152,7 @@ export class Chessman {
     nextLuozi(){}
 
     _selected(viewer) {
-        this.status = 2;
+        this.status = 2; 
         this.nextLuozi(viewer)
     }
 
@@ -255,10 +255,11 @@ export class MutuallyChessman extends Chessman {
         const miny = this.type === 'red' ? 5 : 0
         const maxy = this.type === 'red' ? 9 : 4
         for(let [dx, dy] of dir){
-            const obj = viewer.chessmanLayer.seachByPosition(dx + x, dy + y)  
+            const obj = viewer.chessmanLayer.seachByPosition(dx + x, dy + y) 
+
             if(obj || x + dx < 0 || x + dx > 8 || y + dy < miny || y + dy > maxy) continue 
             const obj2 = viewer.chessmanLayer.seachByPosition(x + dx * 2, y + dy* 2)
-            if(obj2) continue
+            if(obj2  && obj2.type === this.type) continue
             arr.push([x + dx * 2, y + dy* 2]) 
         } 
         this.nextPositions = arr
@@ -279,7 +280,7 @@ export class ShiChessman extends Chessman {
         const maxy = this.type === 'red' ? 9 : 2
         for(let [dx, dy] of dir){
             const obj = viewer.chessmanLayer.seachByPosition(dx + x, dy + y)
-            if(obj || x + dx < 3 || x + dx > 5 || y + dy < miny || y + dy > maxy) continue
+            if(obj && obj.type === this.type || x + dx < 3 || x + dx > 5 || y + dy < miny || y + dy > maxy) continue
             arr.push([x + dx, y + dy])
         }
         this.nextPositions = arr

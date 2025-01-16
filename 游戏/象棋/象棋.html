@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>五子棋</title>
+    <title>象棋</title>
     <style>
         .game-container {
             display: flex;
@@ -40,7 +40,7 @@
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background-color: white;
+            background-color: red;
             border: 1px solid #333;
             vertical-align: middle;
             margin-right: 5px;
@@ -60,6 +60,7 @@
             <div class="controls">
                 <button id="restartBtn">重新开始</button>
                 <button id="undoBtn">悔棋</button>
+                <button id="redoBtn">恢复</button>
             </div>
             <div id="winner"></div>
         </div>
@@ -67,7 +68,7 @@
 
     <script type="module"> 
         import { drawBoard, initDrawChessman } from './drawBoard.js';
-        import {eventEmitter} from '../../每日一道面试题/js设计模式/发布-订阅模式.js'
+        import {eventEmitter} from './发布-订阅模式.js'
         import {Viewer} from './layer.js';
         
         let canvas, ctx,viewer
@@ -82,8 +83,14 @@
                 this.ctx = this.canvas.getContext('2d'); 
                 this.init();
 
-                eventEmitter.on('updataUndo', (data) => {
+                eventEmitter.on('updataUndo', (data) => { 
                      this.undoArr.push(data)
+                })
+                eventEmitter.on('switchExecutor', (data) => { 
+                    const display = document.getElementById('currentPlayer');
+                    display.innerHTML = data === 'black' ? 
+                        '<span class="black-piece"></span>黑方' :
+                        '<span class="white-piece"></span>红方';
                 })
             }
 
@@ -96,7 +103,10 @@
             
             // 开始游戏循环
             startGameLoop() {
-                
+                if(this.viewer.needRedraw){
+                    this.viewer.draw() 
+                }
+                window.requestAnimationFrame(this.startGameLoop.bind(this));
             }
 
             // 更新
@@ -104,29 +114,56 @@
                  
             }
 
-            // 渲染 
-            render() {
-               
+            // 重新开始 
+            restart() {
+                this.viewer.refresh()
+                this.undoArr = []
+                this.redoArr = []
             }
             
             // 撤销
             onUndo() {
-
+                if( this.undoArr.length === 0) return
+                const d = this.undoArr.pop()
+                this.redoArr.push(d)
+                const p = [...d.chessman.position]
+                d.chessman.setPosition(d.form)
+                d.form = p
+                if(d.eat) {
+                    this.viewer.chessmanLayer.add(d.eat)
+                } 
+                this.viewer.switchExecutor() // 切换执子方
             }
 
             // 恢复
             onRedo() {
-
-            }
-
-            // 清空画布
-            clearCanvas() {
-                
+                if( this.redoArr.length === 0) return
+                const d = this.redoArr.pop()
+                const p = [...d.chessman.position] 
+                this.undoArr.push(d) 
+                d.chessman.setPosition(d.form) 
+                d.form = p
+                if(d.eat) {
+                    this.viewer.chessmanLayer.remove(d.eat)
+                }
+                this.viewer.switchExecutor() // 切换执子方
             }
         }
 
+        
+
         window.onload = () => {
-            new ChessGame();
+           const chessGame = new ChessGame();
+
+            document.getElementById('restartBtn').addEventListener('click', () => {
+                chessGame.restart()
+            });
+            document.getElementById('undoBtn').addEventListener('click', () => {
+                chessGame.onUndo()
+            });
+            document.getElementById('redoBtn').addEventListener('click', () => {
+                chessGame.onRedo()
+            });
         };
     </script>
 </body>

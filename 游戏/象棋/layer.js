@@ -1,5 +1,6 @@
 import {FallingChessman, Line, StepData} from './board.js' 
 import {drawBoard, initDrawChessman} from './drawBoard.js'
+import {eventEmitter} from './发布-订阅模式.js'
 export class Viewer { 
     allLayers // 所有图层
     boardLayer  // 象棋棋盘图层
@@ -82,17 +83,22 @@ export class Viewer {
         if(previewObj){ 
             const eatChessman = this.eatChessman(previewObj.position[0], previewObj.position[1]) 
             this.previewLayer.removeAll()
-           const data= new StepData(this.currentChessman, [...this.currentChessman.position], eatChessman)
-
+            const data= new StepData(this.currentChessman, [...this.currentChessman.position], eatChessman)
+            eventEmitter.emit('updataUndo', data)
             this.currentChessman.setPosition(previewObj.position) // 将棋子移动到预览位置
-            this.currentChessman = null
-            this.currentType = this.currentType === 'red' ? 'black' : 'red'
-            this.estimateEatChessman = []
-
-           
-            this.isGeneral = false
-            this.refresh()
+            
+            this.switchExecutor() 
         }
+    }
+
+    // 切换执行者
+    switchExecutor(){
+        this.currentType = this.currentType === 'red' ? 'black' : 'red'
+        this.estimateEatChessman = []
+        this.currentChessman = null 
+        this.isGeneral = false
+        this.needRedraw = true
+        eventEmitter.emit('switchExecutor', this.currentType)
     }
     selected(obj){
         this.currentChessman = obj
@@ -105,7 +111,7 @@ export class Viewer {
             this.previewLayer.add(new FallingChessman(p)) 
         }) 
         this.estimateEat(obj)
-        this.refresh()
+        this.needRedraw = true
     }
 
     estimateEat(obj){
@@ -135,14 +141,17 @@ export class Viewer {
             }
         }
         return obj
+    } 
+
+    refresh(){
+        this.initLayer()
     }
+
     layerDraw(layer) {
         layer.draw()
     }
-    refresh(){
-        window.requestAnimationFrame(this.draw.bind(this))
-    }
     draw() { 
+        this.needRedraw = false
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height) // 将整个草图上的对象全部擦除
         this.allLayers.forEach(layer => {
             this.layerDraw(layer)
