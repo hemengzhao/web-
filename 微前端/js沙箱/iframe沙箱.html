@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body> 
+    <script>
+
+        // 使用iframe实现微前端有哪些优点？
+        // 实现简单：子应用之间自带沙箱，天然隔离，互不影响
+        // 技术限制：可以各自使用完全不同的前端框架
+        // 消息传递: 只要每个iframe来自同一个源，就可以使用window.postMessageAPI进行消息传递
+        // 使用iframe实现微前端有哪些缺点
+        // Buddle的大小各异，构建时不能提取公共依赖关系
+        // 不支持SEO
+        // URL不同步： iframe页面url中的状态信息不能同步到父窗口，无法使用浏览器的前进和后退功能
+        // DOM结构不共享： iframe的页面布局只针对iframe窗口
+        // 全局上下问完全隔离，内存变量不共享
+        // 启动慢： 每次微应用进入都是一次浏览器上下问重建、资源重新加载的过程
+        function createSandbox() {
+            const iframe = document.createElement("iframe");
+            document.body.appendChild(iframe);
+            const sandboxWindow = iframe.contentWindow;
+
+            return {
+                run(code) {
+                    try {
+                        return sandboxWindow.eval(code);
+                    } catch (error) {
+                        console.error("Error executing code:", error);
+                        return null;
+                    }
+                },
+                setGlobal(key, value) {
+                    sandboxWindow[key] = value;
+                },
+                getGlobal(key) {
+                    return sandboxWindow[key];
+                },
+                destroy() {
+                    document.body.removeChild(iframe); // 清理 iframe
+                },
+            };
+        }
+
+        // 使用示例
+        const sandbox = createSandbox();
+        sandbox.setGlobal("x", 10);
+        sandbox.setGlobal("y", 20);
+
+        const result = sandbox.run("x + y");
+        console.log("Result:", result); // 输出: Result: 30
+
+        sandbox.destroy(); // 清理沙箱
+    </script>
+</body>
+
+</html>

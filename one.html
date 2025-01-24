@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>周年粒子文字特效</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            position: relative;
+        }
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0; 
+        }
+        .canvas{
+          z-index: 10;
+        }
+    </style>
+</head>
+<body>
+  
+    <canvas id="canvasBg"></canvas>
+    <canvas id="canvas"></canvas>
+</body>
+<script  >
+   const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const canvasBg = document.getElementById('canvasBg');
+    const ctxBg = canvasBg.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    canvasBg.width = window.innerWidth;
+    canvasBg.height = window.innerHeight;
+    const colors = ['#ffa502', '#ff6348', '#ff4757', '#2ed573', '#1e90ff', '#3742fa']
+    const textList = ["1周年快乐", "感谢有你", "陪我四季", "不忘初心", "砥砺前行", "再创辉煌"]
+    const textParticleList = []
+    const text = "1周年快乐";
+    const particles = [];
+    const particleCount = 100; // 每个字符的粒子数量
+
+    // 粒子类
+    class Particle {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            this.initx = x
+            this.inity = y
+            this.size = 2
+            this.speedX = 0
+            this.speedY = 0
+            this.size = Math.random() *5  + 1; // 粒子大小
+            this.speedX = Math.random() * 3 - 1.5; // X方向速度
+            this.speedY = (Math.random() * 3 - 1.5) ; // Y方向速度
+        }
+
+        update() {
+            this.x += this.x - this.initx < 100 ? this.speedX : -this.speedX;
+            if((this.y - this.inity) < -50){
+                this.speedY  = -1 * this.speedY
+            }
+            this.y += this.speedY;
+            
+            // 边界检测
+            // if (this.size > 0.2) this.size -= 0.1; // 粒子逐渐消失
+        }
+
+        draw() {
+            ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    // 创建粒子
+    function createParticles(x, y) {
+        particles.push(new Particle(x, y));
+    }
+
+    // 获取文字信息
+    function getTextImageData() {
+        ctxBg.clearRect(0, 0, canvasBg.width, canvasBg.height);
+        ctxBg.fillStyle = 'white';
+        ctxBg.font = 'bold 200px Arial';
+        ctxBg.textAlign = 'center';
+        ctxBg.textBaseline = 'middle';
+        ctxBg.fillText(text, canvasBg.width / 2, canvasBg.height / 2);
+        return ctxBg.getImageData(0, 0, canvasBg.width, canvasBg.height);
+    }
+ 
+    const init = () => { 
+        const imageData = getTextImageData()
+        console.log(imageData.data.length)
+        for(let i = 0; i < imageData.data.length / 4; i+=4){
+            const r = imageData.data[i * 4]
+            const g = imageData.data[i * 4 + 1]
+            const b = imageData.data[i * 4 + 2]
+            const a = imageData.data[i * 4 + 3]
+            if(r === 255 && g === 255 && b === 255){ 
+                x =  i % canvasBg.width * 1  
+                y =  ((i / canvasBg.width) | 0) * 1   
+                createParticles(x, y)
+            }
+        }
+        draw()
+
+    }
+    function draw(){
+        ctx.clearRect(0, 0, canvas.width, canvas.height); 
+        particles.forEach(particle => {
+            particle.update();
+            particle.draw();
+        });
+        requestAnimationFrame(draw);
+    }
+    init()
+ 
+</script>
+</html>

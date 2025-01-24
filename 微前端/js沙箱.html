@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div></div>
+  </body>
+  <script>
+    // 实现一个 JavaScript 沙箱可以让你在一个受限的环境中执行代码，防止代码访问全局作用域或其他不安全的操作。以下是一个简单的 JavaScript 沙箱实现示例，使用 Function 构造函数和 try...catch 来捕获错误。
+    class Sandbox {
+      constructor() {
+        this.global = {};
+      }
+
+      run(code) {
+        try {
+          // 创建一个新的函数，使用 this.global 作为上下文
+          const func = new Function(...Object.keys(this.global), code);
+          return func(...Object.values(this.global));
+        } catch (error) {
+          console.error("Error executing code:", error);
+          return null;
+        }
+      }
+
+      setGlobal(key, value) {
+        this.global[key] = value; // 设置全局变量
+      }
+
+      getGlobal(key) {
+        return this.global[key]; // 获取全局变量
+      }
+    }
+
+    // 使用示例
+    const sandbox = new Sandbox();
+
+    // 设置全局变量
+    sandbox.setGlobal("x", 10);
+    sandbox.setGlobal("y", 20);
+
+    // 运行代码
+    const result = sandbox.run(`
+    const z = x + y; // 使用全局变量
+    return z; // 返回结果
+`);
+
+    console.log("Result:", result); // 输出: Result: 30
+
+    // 尝试运行不安全的代码
+    sandbox.run(`
+    // 试图访问未定义的全局变量
+    console.log(window); // 这将不会抛出错误，但也不会有输出
+`);
+
+    // 如果你想要更强的沙箱功能，可以考虑使用 Proxy 来拦截对全局对象的访问，或者使用 iframe 来创建一个完全隔离的环境。以下是一个使用 iframe 的简单示例：
+    function createSandbox() {
+      const iframe = document.createElement("iframe");
+      document.body.appendChild(iframe);
+      const sandboxWindow = iframe.contentWindow;
+
+      return {
+        run(code) {
+          try {
+            return sandboxWindow.eval(code);
+          } catch (error) {
+            console.error("Error executing code:", error);
+            return null;
+          }
+        },
+        setGlobal(key, value) {
+          sandboxWindow[key] = value;
+        },
+        getGlobal(key) {
+          return sandboxWindow[key];
+        },
+        destroy() {
+          document.body.removeChild(iframe); // 清理 iframe
+        },
+      };
+    }
+
+    // 使用示例
+    const sandbox2 = createSandbox();
+    sandbox2.setGlobal("x", 10);
+    sandbox2.setGlobal("y", 20);
+
+    const result2 = sandbox2.run("x + y");
+    console.log("Result:", result2); // 输出: Result: 30
+
+    sandbox2.destroy(); // 清理沙箱
+
+    // 基于Proxy的沙箱实现
+    // 根据沙箱内对属性/方法的操作记录更该window对象的属性/方法
+    function updateWindowProps(prop, value, isDelete) {
+      if (value === undefined || isDelete) {
+        // 删除属性
+        delete window[prop];
+      } else {
+        // 更新属性
+        window[prop] = value;
+      }
+    }
+
+    // 代理沙箱实现
+    class ProxySandbox {
+      constructor(name) {
+        // 代理沙箱名称
+        this.name = name;
+        // 沙箱全局对象
+        const sandboxWindow = Object.create(null);
+        // sandboxWindow 代理
+        this.proxy = null;
+        // 记录新增加的属性
+        this.addedPropsMap = new Map();
+        // 记录更新的属性
+        this.updatedPropsMap = new Map();
+        // 记录所有有更改记录的属性（新增/修改）
+        this.allChangedPropsMap = new Map();
+
+        const proxy = new Proxy(sandboxWindow, {
+          get(target, prop) {
+            return window[prop];
+          },
+          set(target, prop, value) {
+            if (!window.hasOwnProperty(prop)) {
+              // window 对象上没有属性，记录新增
+              this.addedPropsMap.set(prop, value);
+            } else if (!this.updatedPropsMap.has(prop)) {
+              // window 对像上已经存在的值，但是还没有更新，记录更新
+              const orgVal = window[prop];
+              this.updatedPropsMap.set(prop, orgVal);
+            }
+            // 记录所有变更的对象
+            this.allChangedPropsMap.set(prop, value);
+            // 更改window对象
+            updateWindow(prop, value);
+            return true;
+          },
+        });
+
+        this.proxy = proxy;
+      }
+
+      // 激活沙箱
+      activeSandbox() {
+        // 更新当前记录的所有属性
+        this.allChangedPropsMap.forEach((val, prop) => updateWindow(prop, val));
+      }
+
+      // 关闭沙箱
+      inactiveSandbox() {
+        // 还原所有更新过的属性
+        this.updatedPropsMap.forEach((val, prop) => updateWindow(prop, val));
+        // 删除所有沙箱内新添加的属性
+        this.addedPropsMap.forEach((_, prop) =>
+          updateWindow(prop, undefined, true)
+        );
+      }
+    }
+
+    // 代理沙箱测试
+    const sandboxProxy = new ProxySandbox("代理沙箱");
+    const sandboxContext = sandboxProxy.proxy;
+    sandboxContext.dog = "旺财";
+    console.log("沙箱激活:", sandboxContext.dog, window.dog); // 旺财 旺财
+
+    //关闭沙箱
+    sandboxProxy.inactiveSandbox();
+    console.log("关闭沙箱:", sandboxContext.dog, window.dog); // undefined undefined
+
+    // 重新激活沙箱
+    sandboxProxy.activeSandbox();
+    console.log("沙箱激活:", sandboxContext.dog, window.dog); // 旺财 旺财
+  </script>
+</html>

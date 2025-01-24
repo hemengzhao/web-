@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+// 在不支持proxy的浏览器中，可以通过diff的方式实现沙箱
+// 在运行子应用时保存一个window的快照对象，将当前的window对象全部复制到这个快照对象中
+// 子应用卸载时将window对象和快照对象对象进行diff，将不同的属性保存下来，再次挂载的时候再添加上这些属性
+        class DiffSandbox {
+            constructor(name) {
+                this.name = name
+                this.modifiedProps = {}
+                this.windowSnapshot = {}
+            }
+
+            activeSandbox() {
+                this.windowSnapshot = {}
+                for (let key in window) {
+                    this.windowSnapshot[key] = window[key]
+                }
+
+                Object.keys(this.modifiedProps).forEach(propName => {
+                    window[propName] = this.modifiedProps[propName]
+                })
+            }
+
+            inactiveSandbox() {
+                for (let key in window) {
+                    if (this.windowSnapshot[key] !== window[key]) {
+                        this.modifiedProps[key] = window[key]
+                        window[key] = this.windowSnapshot[key]
+                    }
+                }
+            }
+        }
+
+        // diff 沙箱测试
+        const diffSandbox = new DiffSandbox('diff沙箱')
+        // 激活沙箱
+        diffSandbox.activeSandbox()
+        window.cat = '1'
+        console.log('激活沙箱', window.cat) // 1
+
+        // 关闭沙箱
+        diffSandbox.inactiveSandbox()
+        console.log('关闭沙箱', window.cat) // undefined
+
+        diffSandbox.activeSandbox()
+        console.log('重新激活沙箱', window.cat) // 1
+    </script>
+</body>
+
+</html>
