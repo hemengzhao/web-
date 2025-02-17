@@ -1,6 +1,7 @@
 import { useState } from "react";
 import TestUseActionState from "./testHook/useActionState";
 import TestUseOptimistic from "./testHook/useOptimistic";
+import TestUseFormStatus from "./testHook/useFormStatus";
 import "./App.css";
 
 function App() {
@@ -8,6 +9,7 @@ function App() {
   const [list, setList] = useState<string[]>([
     "useActionState",
     "useOptimistic",
+    "useFormStatus",
   ]);
 
   return (
@@ -30,6 +32,8 @@ function App() {
 
       {action === "useActionState" && <TestUseActionState />}
       {action === "useOptimistic" && <TestUseOptimistic />}
+
+      {action === "useFormStatus" && <TestUseFormStatus />}
     </div>
   );
 }
