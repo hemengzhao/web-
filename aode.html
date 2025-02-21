@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>高德地图获取当前位置</title>
+    <style>
+        #mapContainer { width: 100%; height: 400px; }
+    </style>
+    <script src="https://webapi.amap.com/maps?v=1.4.15&key=66384b4cbdd62cb074030b1083cbccbb"></script>
+</head>
+<body>
+    <div id="mapContainer"></div>
+    <script>
+        var map = new AMap.Map('mapContainer', {zoom: 11}); // 初始化地图对象
+        AMap.plugin('AMap.Geolocation', function() { // 加载定位插件
+            var geolocation = new AMap.Geolocation({enableHighAccuracy: true}); // 构造定位对象并配置参数。
+            map.addControl(geolocation); // 将定位控件添加至地图实例。
+            geolocation.getCurrentPosition(); // 获取当前位置信息。
+            AMap.event.addListener(geolocation, 'complete', onComplete); // 返回定位结果。
+            AMap.event.addListener(geolocation, 'error', onError);       // 返回定位出错信息。
+        });
+        function onComplete(data) { // 定位成功回调函数。
+            console.log("🚀 ~ onComplete ~ data:", data)
+            console.log(data); // data是具体的定位信息。
+        }
+        function onError(error) { // 定位失败回调函数。
+            console.log("🚀 ~ onError ~ error:", error)
+            console.error(error); // error是具体的错误信息。
+        }
+    </script>
+</body>
+</html>

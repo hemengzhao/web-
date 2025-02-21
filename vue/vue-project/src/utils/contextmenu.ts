@@ -64,6 +64,7 @@ function createContextmenu(list: ICustomizeContextmenu[]) {
 }
 
 export function customizeContextmenu(list: ICustomizeContextmenu[]) {
+  console.log('🚀 ~ customizeContextmenu ~ list:', list)
   const menu = createContextmenu(list)
   document.body.appendChild(menu)
   function contextmenuFn(e: MouseEvent) {

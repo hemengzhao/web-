@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
+import { customizeContextmenu } from './utils/contextmenu'
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  customizeContextmenu([])
+})
 </script>
 
 <template>

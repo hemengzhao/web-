@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div></div>    
+</body>
+<script type="module">
+    import {reactive} from './js/packages/reactive/reactive.js'
+    import {effect} from './js/packages/reactive/effect.js'
+    const obj  = reactive({
+        name:'张三',
+        age:18
+    })
+   const _effect = effect(() => {
+        document.body.innerText = `姓名：${obj.name} 年龄：${obj.age}` 
+    })
+    obj.age++
+
+    _effect.run()
+</script>
+</html>
