@@ -13,13 +13,28 @@
     import {effect} from './js/packages/reactive/effect.js'
     const obj  = reactive({
         name:'张三',
-        age:18
+        age:18,
+        flag: false
     })
-   const _effect = effect(() => {
-        document.body.innerText = `姓名：${obj.name} 年龄：${obj.age}` 
-    })
-    obj.age++
+    let text = ''
+    effect(() => {  
+        text = obj.flag ? obj.age : obj.name
+        console.log("🚀 ~ effect", text)
+   }) 
+         
+    setTimeout(() => { 
+       
+        obj.flag = true
+        console.log('obj.flag' )
+        setTimeout(() => { 
+            console.log('obj.flag22222222' )
+            obj.name = '!obj.flag '
+        }, 1000)
+    }, 1000)
 
-    _effect.run()
+    setTimeout(() => { 
+            console.log('obj.flag22222222333' )
+            obj.name = '!obj.flag 3333333'
+        }, 3000)
 </script>
 </html>
