@@ -67,6 +67,8 @@ function mounted(){
         } 
         styleObj.boxShadow = `inset 0 0 50px 50px rgba(${Math.floor(allR / allpx)},${Math.floor(allG / allpx)},${Math.floor(allB / allpx)}, 1) `;
         var box = document.querySelector('.box'); 
+        var body = document.querySelector('body');
+        // body.style.background = ` rgba(${Math.floor(allR / allpx)},${Math.floor(allG / allpx)},${Math.floor(allB / allpx)}, 1) `;
         box.style.boxShadow = styleObj.boxShadow;
 
     }
