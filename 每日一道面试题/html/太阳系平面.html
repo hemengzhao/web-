@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>太阳系行星运动</title>
+    <style>
+        canvas {
+            border: 1px solid #000;
+            background: #000;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="solarSystem" width="800" height="800"></canvas>
+
+    <script>
+        const canvas = document.getElementById('solarSystem');
+        const ctx = canvas.getContext('2d');
+
+        // 天体参数配置
+        const sun = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            radius: 30,
+            color: '#FFD700'
+        };
+
+        const planets = [
+            { // 水星（简化参数）
+                radius: 5,
+                orbitRadius: 70,
+                angle: 0,
+                speed: 0.03,
+                color: '#A0522D'
+            },
+            { // 金星
+                radius: 10,
+                orbitRadius: 100,
+                angle: 0,
+                speed: 0.02,
+                color: '#DEB887'
+            },
+            { // 地球
+                radius: 12,
+                orbitRadius: 150,
+                angle: 0,
+                speed: 0.015,
+                color: '#4169E1'
+            },
+            { // 火星
+                radius: 8,
+                orbitRadius: 200,
+                angle: 0,
+                speed: 0.01,
+                color: '#CD5C5C'
+            }
+        ];
+
+        // 动画循环
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制太阳
+            ctx.beginPath();
+            ctx.arc(sun.x, sun.y, sun.radius, 0, Math.PI * 2);
+            ctx.fillStyle = sun.color;
+            ctx.fill();
+
+            // 绘制行星
+            planets.forEach(planet => {
+                // 更新行星角度
+                planet.angle += planet.speed;
+                
+                // 计算行星位置
+                const x = sun.x + planet.orbitRadius * Math.cos(planet.angle);
+                const y = sun.y + planet.orbitRadius * Math.sin(planet.angle);
+
+                // 绘制轨道
+                ctx.beginPath();
+                ctx.arc(sun.x, sun.y, planet.orbitRadius, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.stroke();
+
+                // 绘制行星
+                ctx.beginPath();
+                ctx.arc(x, y, planet.radius, 0, Math.PI * 2);
+                ctx.fillStyle = planet.color;
+                ctx.fill();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // 启动动画
+        animate();
+    </script>
+</body>
+</html>
