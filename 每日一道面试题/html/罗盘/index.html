@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="./index.css" />
+</head>
+
+<body>
+    <!-- 东西南北 direction -->
+    <div id="luopan"></div>
+
+    <script lang="javascript">
+        const luopan = document.getElementById('luopan')
+        const direction = ['北', '东', '南', '西']
+        const bagua = ['乾', '兑', '离', '震', '巽', '坎', '艮', '坤']
+        const tian = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸']
+        const dizhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥']
+        //  <!-- 乾兑离震巽坎艮坤 ba_gua-->
+        //     <!-- 甲、乙、丙、丁、戊、己、庚、辛、壬、癸 tian_gan-->
+        //     <!-- 子、丑、寅、卯、辰、巳、午、未、申、酉、戌、亥 di_zhi-->
+        /**
+         * @function initLine
+         * @description 初始化罗盘的线条
+         * @param {HTMLElement} dom 父元素
+         * @param {Number} num 线条数量
+         * @param {Number} angle 起始旋转角度
+         * */
+        function initLine(dom, num, angle) {
+            const deg = 180 / num
+            for (let i = 0; i < num; i++) {
+                const div = document.createElement('div')
+                div.className = 'com-line'
+                div.style.transform = `rotate(${i * deg + angle}deg)`
+                dom.appendChild(div)
+            }
+        }
+        function initDirection() {
+            const dir = document.createElement('div')
+            dir.className = 'direction com-innerLayer'
+
+            direction.forEach((item, index) => {
+                const div = document.createElement('div')
+                div.className = 'com-text'
+                div.style.transform = `rotate(${index * 90}deg)`
+                div.innerHTML = item
+                dir.appendChild(div)
+            })
+            initLine(dir, 2, -45)
+            luopan.appendChild(dir)
+        }
+
+        //   ba_gua
+        function initbagua() {
+            const dir = document.createElement('div')
+            dir.className = 'bagua com-innerLayer'
+            bagua.forEach((item, index) => {
+                const div = document.createElement('div')
+                div.className = 'com-text'
+                div.style.transform = `rotate(${index * 45}deg)`
+                div.innerHTML = item
+                dir.appendChild(div)
+            })
+            initLine(dir, 4, -22.5)
+            luopan.appendChild(dir)
+        }
+
+        //   tian_gan
+        function initTian() {
+            const dir = document.createElement('div')
+            dir.className = 'tian com-innerLayer'
+            tian.forEach((item, index) => {
+                const div = document.createElement('div')
+                div.className = 'com-text'
+                div.style.transform = `rotate(${index * 36}deg)`
+                div.innerHTML = item
+                dir.appendChild(div)
+            })
+            initLine(dir, 5, -18)
+            luopan.appendChild(dir)
+        }
+        //    di_zhi
+        function initDizhi() {
+            const dir = document.createElement('div')
+            dir.className = 'dizhi com-innerLayer'
+            dizhi.forEach((item, index) => {
+                const div = document.createElement('div')
+                div.className = 'com-text'
+                div.style.transform = `rotate(${index * 30}deg)`
+                div.innerHTML = item
+                dir.appendChild(div)
+            })
+            initLine(dir, 6, -15)
+            luopan.appendChild(dir)
+        }
+
+        function initScale() {
+            const scale = document.createElement('div')
+            scale.className = 'scale-box com-innerLayer'
+            for (let i = 0; i < 180; i++) {
+                const div = document.createElement('div')
+                div.className = 'scale'
+                div.style.transform = `rotate(${i * 2}deg)`
+                if (i % 5 === 0) {
+                    div.className = 'scale scale-long'
+                    div.innerText = i * 2
+                }
+                scale.appendChild(div)
+            }
+            luopan.appendChild(scale)
+        }
+        function init() {
+            initDirection()
+            initScale()
+            initbagua()
+            initTian()
+            initDizhi()
+        }
+
+        init()
+    </script>
+</body>
+
+</html>
