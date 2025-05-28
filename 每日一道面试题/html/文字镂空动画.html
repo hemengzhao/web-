@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
+        }
+        h1{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            font-size: 12vw;
+            background: url(./img/1.jpg) no-repeat center / cover;
+            /* background-clip: text; */
+            line-height: 100vh;
+            color: transparent;
+            animation: scale 3s forwards;
+            white-space: nowrap;
+        }
+        @keyframes scale {
+            from {
+                font-size: 300vw;
+                color: transparent;
+            }
+            to {
+                font-size: 12vw;
+                color: #fff;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>我是何梦召AEC</h1>
+</body>
+</html>
