@@ -1,3 +1,19 @@
+ 
+/**
+ * 
+ *                     添加新属性             删除属性         修改属性值      递归处理               原型链影响     返回值
+ * freeze               禁止                 禁止               禁止          递归冻结所有自有属性    不影响        冻结后的对象
+ *  
+ * seal                 禁止                  禁止              不禁止        不递归处理嵌套属性      不影响        密封后的对象
+ *
+ * preventExtensions    禁止                  不禁止            不禁止         不递归处理嵌套属性     不影响         不可扩展的对象
+ * 
+ * 严格性排序：freeze > seal > preventExtensions
+ * 递归处理：仅 freeze 会递归冻结嵌套对象。
+ * 删除属性：仅 freeze 和 seal 禁止删除，preventExtensions 允许。
+ * 修改值：仅 freeze 禁止修改值
+ * */ 
+
 const freezeObj = {
     name: '张三',
     age: 18,

@@ -142,4 +142,10 @@
 
 ## 72 thenable Promise 的 thenable 面试题
 
-## 72 合并重叠的子数组面试题 & this 面试题
+## 73 合并重叠的子数组面试题 & this
+
+## 74 用一个一个函数实现 const
+
+## 75 freeze seal preventExtensions
+
+## 76 js 颜色处理
