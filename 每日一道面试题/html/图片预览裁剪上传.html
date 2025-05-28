@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .fileImg{
+            width: 800px;
+            height: 800px;
+
+            padding: 20px;
+            background-color: cadetblue;
+            position: relative;
+        }
+        .previewBox{
+            border: 1px solid #fff;
+            width: 200px;
+            height: 200px;
+            position: absolute;
+            top: 20px;
+           
+        }
+         
+        .subscript{
+            width: 10px;
+            height: 10px ;
+            border: 1px solid #fff;
+            position: absolute;  
+           
+        }
+        .subscript.top{
+            top: -12px;
+        }
+        .subscript.bot{
+            bottom: -12px;
+        }
+        .subscript.left{
+            left: -12px;
+           
+        }
+        .subscript.right{
+            right: -12px;
+            
+        }
+        .top.left, .bot.right{
+            cursor: nwse-resize
+        }
+        .top.right, .bot.left{
+            cursor: nesw-resize
+        }
+
+      .fileImg  .img{
+        object-fit: contain;
+        width: 100%;
+        height: 100%;
+        user-select: none;
+      }
+    </style>
+</head>
+<body>
+    <input id="updata" type="file" value="点击选择图片" accept=".png,.jpge,.jpg,.webp"/>
+    <div class="fileImg">
+        <img class="img"/> 
+        <div class="previewBox">
+            <div class="subscript lt top left" data-opt="lt"> </div>
+            <div class="subscript rt top right" data-opt="rt"></div>
+            <div class="subscript lb bot left" data-opt="lb"> </div>
+            <div class="subscript rb bot right" data-opt="rb"></div>
+        </div>
+    </div>
+    <button class="cai">裁剪</button>
+
+    <div>
+        <canvas class="canvas" width="200" height="200"  ></canvas>
+    </div>
+<script>
+    const input = document.getElementById('updata')
+    const preview = document.querySelector('.img')
+    const canvas = document.querySelector('canvas')
+    const cai = document.querySelector('.cai')
+    const previewBox = document.querySelector('.previewBox')
+    function getUrlbyFile(file){
+        // 获取方式一
+        const url = URL.createObjectURL(file) 
+        return url
+        // 获取方式需要通过回调函数
+        // const reder = new FileReader()
+        // reder.onload = function(e){
+        //      cd(e.target.result)
+        // }
+        // reder.readAsDataURL(file)
+
+    }
+    input.onchange = function(e){ 
+        const file = e.target.files[0]
+        preview.src=getUrlbyFile(file)
+
+        preview.onload = (e) =>{
+            console.log(e, preview.width, preview.height)
+            
+            updataPrevie()
+        }
+        setTimeout(() => {
+       
+        }, 100)
+    }
+    cai.onclick = function(){
+        console.log(1111111111)
+        updataPrevie()
+    }
+
+    function updataPrevie(){ 
+        const ctx = canvas.getContext('2d')
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(preview, 0,0, 200, 200, 0, 0, canvas.width, canvas.height)
+  
+    }
+ 
+
+    let qx = 0, qy = 0, qw = 0, qh= 0, w = 0, h = 0,isStart = false
+    function onMousemove(e){  
+        if(!isStart) return 
+        const {screenX, screenY} = e  
+        w  = screenX - qx + qw
+        h = screenX - qx + qh 
+    }
+    function onMousedown(e, dir){
+        isStart = true
+        const {screenX, screenY, } = e 
+        qx = screenX
+        qy = screenY
+
+        qw = previewBox.offsetWidth
+        qh = previewBox.offsetHeight
+        w  =qw
+        h  =qh  
+        rederFn()
+    }
+
+    function rederFn(){
+        if(!isStart) return  
+        requestAnimationFrame(() => { 
+            previewBox.style.width = w  > 800 ? 800: w + 'px'
+            previewBox.style.height = h> 800 ? 800: h + 'px' 
+            rederFn()
+        })
+    }
+   
+    function onMouseup(e){
+        isStart = false 
+    }
+
+
+    const lt = document.querySelector('.lt')
+    const rt = document.querySelector('.rt')
+    const lb = document.querySelector('.lb')
+    const rb = document.querySelector('.rb')
+    document.addEventListener('mouseup',(e) =>  onMouseup(e))
+    document.addEventListener('mousemove', (e) => onMousemove(e))
+    function addMoveEvent(el, dir){
+        el.addEventListener('mousedown', (e) => onMousedown(e, dir)) 
+      
+    }
+    addMoveEvent(lt)
+    addMoveEvent(rt)
+    addMoveEvent(lb)
+    addMoveEvent(rb)
+</script>
+</body>
+</html>
