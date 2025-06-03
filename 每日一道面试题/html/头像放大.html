@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        div{
+            padding: 100px;
+        }
+        img{
+            --s: 250px;
+            --c1: rgb(242, 19, 19);
+            --c2: rgb(197, 200, 9);
+            --f: 1;
+            --b: 5px;
+            --bgOption: content-box no-repeat center / calc(100% / var(--f));
+            transform: scale(var(--f));
+            width: var(--s);
+            height: var(--s);
+            cursor: pointer;
+            transition: 0.5s all;
+            background: radial-gradient(circle closest-side, 
+            var(--c2) calc(99% - var(--b)), 
+            var(--c1) calc(100% - var(--b)) 99%, 
+            transparent) var(--bgOption) ;
+            outline: var(--b) solid var(--c1);
+            /* border-radius: 0 0 50% 50%; */
+            border-radius: 0 0 999px 999px;
+            outline-offset: calc((1 / var(--f) - 1) * var(--s) / 2 - var(--b));
+            padding-top: calc(var(--s) / 5);
+            mask: linear-gradient(#000 0 0) no-repeat 50% calc(12px - (1 / var(--f) - 1) * var(--s) / 2 - var(--b)) 
+            / calc(100% / var(--f) - 3 * var(--b)) 50%, radial-gradient(circle closest-side, #000 99%, transparent) var(--bgOption);
+
+        }
+        img:hover{
+            --f: 1.35;
+            /* transform: scale(1.35); */
+        }
+    </style>
+</head>
+<body>
+    
+    <div> 
+        <img src="./img/头像.png"/> 
+        <img src="./img/touxiang.png"/> 
+    </div>
+</body>
+</html>
