@@ -1,0 +1,43 @@
+$theme: (
+    light:(
+        baColor: #fff,
+        textColor: #000
+    ),
+
+    dark: (
+        baColor: #000,
+        textColor: #fff
+    ),
+
+    gray: (
+        baColor: #ccc,
+        textColor: #333
+    )
+);
+
+$curThemeName: '';  // 当前主题
+
+// 混合
+@mixin useTheme(){
+    @each $key, $val in $theme {
+        $curThemeName: $key !global;
+        html[data-theme='#{$key}'] & {
+            @content;
+        }
+    }
+}
+
+@function getVarByName($name){
+    $themeMap: map-get($theme, $curThemeName);
+    @return map-get($themeMap, $name )
+}
+ 
+.item {
+    font-size: 12px;
+    @include useTheme {
+        background-color: getVarByName('baColor');
+        color: getVarByName('textColor');
+    }
+}
+
+     
