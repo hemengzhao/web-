@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/3.1.0/vue.global.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      const { createApp, reactive, ref, computed, watch } = Vue;
+      createApp({
+        setup() {
+          const stast = reactive({
+            a: 0,
+            b: 0,
+          });
+          const a = ref(0);
+          const b = ref(0);
+
+          const sum = computed(() => {
+            console.log("🚀 ~ sum ~ computed:");
+            return a.value + b.value;
+          });
+
+          watch(
+            () => {
+              console.log("🚀 ~ watch:");
+              return sum.value;
+            },
+            () => {
+              console.log("🚀 ~ watch change:");
+            }
+          );
+
+          a.value++;
+          b.value--;
+        },
+      }).mount("#app");
+
+
+      // 执行结果
+      // 🚀 ~ watch:
+      // 🚀 ~ sum ~ computed:
+      // 🚀 ~ watch:
+      // 🚀 ~ sum ~ computed:
+      // 🚀 ~ watch change:
+      // 🚀 ~ watch:
+      // 🚀 ~ sum ~ computed:
+      // 🚀 ~ watch change:
+    </script>
+  </body>
+</html>
