@@ -149,3 +149,5 @@
 ## 75 freeze seal preventExtensions
 
 ## 76 js 颜色处理
+
+## 77 awit/async 执行顺序
