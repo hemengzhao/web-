@@ -17,3 +17,5 @@
 ## 009 mix-blend-mode: difference; 颜色混合
 
 ## 010  initial  unset  revert
+
+## 011  图片显示清楚
